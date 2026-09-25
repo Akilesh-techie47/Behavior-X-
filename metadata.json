@@ -1,0 +1,6 @@
+{
+  "name": "Behavior-X | Privacy-Preserving Intelligent Proctoring",
+  "description": "Privacy-preserving intelligent exam proctoring analyzing observable behavioral signals, multi-signal risk scoring, and explainable examiner alerts.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
