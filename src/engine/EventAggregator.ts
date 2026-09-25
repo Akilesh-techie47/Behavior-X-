@@ -1,14 +1,31 @@
 import { BehaviorEvent, EventType } from '../types';
-import { BehaviorConfig } from './config';
+import { BehaviorConfig, DEFAULT_BEHAVIOR_CONFIG } from './config';
 import { EventDebouncer } from './EventDebouncer';
+
+export interface AggregatorOptions {
+  windowMs?: number;
+  minEventsForAggregation?: number;
+  repeatedEventWindowMs?: number;
+  repeatedEventCountThreshold?: number;
+}
 
 export class EventAggregator {
   private config: BehaviorConfig;
   private debouncer: EventDebouncer;
 
-  constructor(config: BehaviorConfig, debouncer: EventDebouncer) {
-    this.config = config;
-    this.debouncer = debouncer;
+  constructor(
+    configOrOptions: BehaviorConfig | AggregatorOptions = DEFAULT_BEHAVIOR_CONFIG,
+    debouncer?: EventDebouncer
+  ) {
+    const baseConfig = { ...DEFAULT_BEHAVIOR_CONFIG };
+    if ('windowMs' in configOrOptions && (configOrOptions as AggregatorOptions).windowMs !== undefined) {
+      baseConfig.repeatedEventWindowMs = (configOrOptions as AggregatorOptions).windowMs!;
+    }
+    if ('minEventsForAggregation' in configOrOptions && (configOrOptions as AggregatorOptions).minEventsForAggregation !== undefined) {
+      baseConfig.repeatedEventCountThreshold = (configOrOptions as AggregatorOptions).minEventsForAggregation!;
+    }
+    this.config = { ...baseConfig, ...(configOrOptions as Partial<BehaviorConfig>) };
+    this.debouncer = debouncer ?? new EventDebouncer(this.config.eventCooldownMs);
   }
 
   /**

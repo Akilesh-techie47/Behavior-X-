@@ -6,19 +6,24 @@ import {
   CameraState,
   SystemStatus,
   RiskState,
+  EvidenceGraphData,
+  CounterfactualScenario,
+  ReviewDecision,
+  MonitoringProfile,
+  SessionBaseline,
 } from '../types';
 import { mockQuestions, mockSessions } from '../data/mockData';
 import { BehaviorEngine } from '../engine/BehaviorEngine';
 import { DEFAULT_BEHAVIOR_CONFIG } from '../engine/config';
 import { BehaviorEventStore } from '../engine/BehaviorEventStore';
-import { useCamera } from '../engine/camera/useCamera';
+import { QuestionIntegrityItem } from '../engine/questions/QuestionIntelligenceEngine';
 
 interface SessionContextType {
   // Session State
   session: ExamSession;
   questions: Question[];
   currentQuestion: Question;
-  
+
   // Navigation & Answers
   goToQuestion: (index: number) => void;
   nextQuestion: () => void;
@@ -49,9 +54,18 @@ interface SessionContextType {
   // Examiner multi-session registry
   allSessions: ExamSession[];
   loadSession: (sessionId: string) => void;
+
+  // V2 Intelligence Extensions
+  questionHeatmap: QuestionIntegrityItem[];
+  evidenceGraph: EvidenceGraphData;
+  counterfactuals: CounterfactualScenario[];
+  sessionBaseline: SessionBaseline;
+  addReviewDecision: (decision: 'CONFIRMED' | 'DISMISSED' | 'UNCERTAIN' | 'MARK_FOR_REVIEW', note: string, eventId?: string) => void;
+  monitoringProfile: MonitoringProfile;
+  setMonitoringProfile: (profile: MonitoringProfile) => void;
 }
 
-const STORAGE_KEY = 'behavior_x_active_session_v1';
+const STORAGE_KEY = 'behavior_x_active_session_v2';
 
 const initialCameraState: CameraState = {
   status: 'idle',
@@ -66,13 +80,14 @@ const initialSystemStatus: SystemStatus = {
   privacyMode: 'strict_edge_only',
   browserSupported: typeof window !== 'undefined' && !!navigator.mediaDevices,
   engineMode: 'real',
+  monitoringProfile: 'BEHAVIORAL',
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [allSessions, setAllSessions] = useState<ExamSession[]>(mockSessions);
-  
+
   // Initialize session from localStorage if available, or default to mockSessions[0]
   const [session, setSession] = useState<ExamSession>(() => {
     try {
@@ -93,6 +108,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [cameraState, setCameraState] = useState<CameraState>(initialCameraState);
   const [systemStatus, setSystemStatus] = useState<SystemStatus>(initialSystemStatus);
   const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
+  const [monitoringProfile, setMonitoringProfileState] = useState<MonitoringProfile>('BEHAVIORAL');
 
   // Behavioral observation engine instance
   const engineRef = useRef<BehaviorEngine | null>(null);
@@ -100,6 +116,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   if (!engineRef.current) {
     const eventStore = new BehaviorEventStore(session.events || []);
     engineRef.current = new BehaviorEngine(session.id, DEFAULT_BEHAVIOR_CONFIG, eventStore);
+    engineRef.current.questionEngine.initializeQuestions(mockQuestions);
   }
 
   // Hook event store notifications to React state
@@ -111,20 +128,25 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     engine.setMode(isDemoMode ? 'demo' : 'real');
 
     const unsubscribe = engine.getEventStore().subscribe((newEvent, allEvents) => {
-      // Re-evaluate risk state using RiskEngine
+      // Re-evaluate risk state using RiskEngine with Three Core Scores
       const updatedRisk = engine.getRiskEngine().evaluateRisk(allEvents);
+      const graph = engine.getEvidenceGraph(session.currentQuestionIndex + 1);
+      const counterfactualScenarios = engine.getCounterfactualScenarios();
 
       setSession(prev => ({
         ...prev,
         events: allEvents,
         riskState: updatedRisk,
+        evidenceGraph: graph,
+        counterfactuals: counterfactualScenarios,
+        questionAttempts: engine.questionEngine.getAttempts(),
       }));
     });
 
     return () => {
       unsubscribe();
     };
-  }, [session.id, isDemoMode]);
+  }, [session.id, isDemoMode, session.currentQuestionIndex]);
 
   // Start engine when exam becomes active
   useEffect(() => {
@@ -253,6 +275,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const goToQuestion = (index: number) => {
     if (index >= 0 && index < questions.length) {
       setSession(prev => ({ ...prev, currentQuestionIndex: index }));
+      if (engineRef.current && questions[index]) {
+        engineRef.current.questionEngine.handleQuestionOpened(questions[index]);
+      }
     }
   };
 
@@ -276,6 +301,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         [questionId]: optionId,
       },
     }));
+
+    if (engineRef.current) {
+      const q = questions.find(item => item.id === questionId);
+      if (q) {
+        engineRef.current.questionEngine.handleAnswerSelected(q, optionId);
+      }
+    }
   };
 
   const toggleFlagQuestion = (questionId: string) => {
@@ -300,6 +332,9 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }));
     if (engineRef.current) {
       engineRef.current.start();
+      if (questions[0]) {
+        engineRef.current.questionEngine.handleQuestionOpened(questions[0]);
+      }
     }
   };
 
@@ -327,7 +362,19 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
       events: [],
       riskState: {
         currentScore: 0,
-        level: 'nominal',
+        level: 'NORMAL',
+        confidence: 0.95,
+        reviewPriorityScore: 0,
+        reviewPriorityLevel: 'NORMAL',
+        evidenceQualityScore: 94,
+        evidenceQualityLevel: 'EXCELLENT',
+        observationQualityScore: 95,
+        observationQualityLevel: 'OPTIMAL',
+        timeWindowSeconds: 30,
+        eventCountInWindow: 0,
+        humanReadableExplanation: 'Nominal physiological candidate baseline observed within the active window.',
+        topContributingFactors: [],
+        contributingSignalSummary: ['No active anomalies in the last 30 seconds'],
         breakdown: { attentionDeviationScore: 0, presenceScore: 0, environmentScore: 0 },
         lastCalculatedAt: Date.now(),
       },
@@ -335,6 +382,7 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setSession(freshSession);
     if (engineRef.current) {
       engineRef.current.getEventStore().clear();
+      engineRef.current.questionEngine.initializeQuestions(mockQuestions);
     }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(freshSession));
@@ -382,6 +430,61 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
   }, [session]);
 
+  // V2 Add Human Review Decision
+  const addReviewDecision = (
+    decision: 'CONFIRMED' | 'DISMISSED' | 'UNCERTAIN' | 'MARK_FOR_REVIEW',
+    note: string,
+    eventId?: string
+  ) => {
+    const newDecision: ReviewDecision = {
+      id: `dec-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      sessionId: session.id,
+      eventId,
+      decision,
+      examinerId: 'EXAM-ADMIN-01',
+      examinerName: 'Certified Academic Examiner',
+      note,
+      timestamp: Date.now(),
+    };
+
+    setSession(prev => ({
+      ...prev,
+      reviewDecisions: [...(prev.reviewDecisions || []), newDecision],
+      notes: note ? `${prev.notes ? prev.notes + '\n' : ''}[${decision}] ${note}` : prev.notes,
+    }));
+  };
+
+  const setMonitoringProfile = (profile: MonitoringProfile) => {
+    setMonitoringProfileState(profile);
+    setSystemStatus(prev => ({ ...prev, monitoringProfile: profile }));
+  };
+
+  // Derive dynamic V2 intelligence structures
+  const questionHeatmap = engineRef.current
+    ? engineRef.current.questionEngine.getIntegrityHeatmap(questions)
+    : [];
+
+  const evidenceGraph = engineRef.current
+    ? engineRef.current.getEvidenceGraph(session.currentQuestionIndex + 1)
+    : { nodes: [], relationships: [], contributions: [], summary: '' };
+
+  const counterfactuals = engineRef.current
+    ? engineRef.current.getCounterfactualScenarios()
+    : [];
+
+  const sessionBaseline = engineRef.current
+    ? engineRef.current.baselineEngine.getBaseline()
+    : {
+        establishedAt: null,
+        sampleCount: 0,
+        baselineTypingSpeedKps: 4.2,
+        baselinePauseDurationSec: 4.5,
+        baselineQuestionResponseSec: 36,
+        baselineGazeDeviationRate: 0.5,
+        baselineMouseVelocity: 320,
+        isEstablished: false,
+      };
+
   return (
     <SessionContext.Provider
       value={{
@@ -409,6 +512,13 @@ export const SessionProvider: React.FC<{ children: React.ReactNode }> = ({ child
         attachVideoElement,
         allSessions,
         loadSession,
+        questionHeatmap,
+        evidenceGraph,
+        counterfactuals,
+        sessionBaseline,
+        addReviewDecision,
+        monitoringProfile,
+        setMonitoringProfile,
       }}
     >
       {children}

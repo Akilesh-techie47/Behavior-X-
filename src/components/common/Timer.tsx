@@ -3,18 +3,24 @@ import { Clock, AlertTriangle } from 'lucide-react';
 
 interface TimerProps {
   initialSeconds?: number;
+  initialDurationMinutes?: number;
   onExpire?: () => void;
   isPaused?: boolean;
   className?: string;
 }
 
 export const Timer: React.FC<TimerProps> = ({
-  initialSeconds = 2700, // 45 mins
+  initialSeconds,
+  initialDurationMinutes,
   onExpire,
   isPaused = false,
   className = '',
 }) => {
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(initialSeconds);
+  const totalSeconds = initialDurationMinutes !== undefined
+    ? initialDurationMinutes * 60
+    : (initialSeconds ?? 2700);
+
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(totalSeconds);
 
   useEffect(() => {
     if (isPaused || secondsRemaining <= 0) return;
@@ -39,9 +45,6 @@ export const Timer: React.FC<TimerProps> = ({
   const minutes = Math.floor((secondsRemaining % 3600) / 60);
   const seconds = secondsRemaining % 60;
 
-  // Warning thresholds:
-  // Under 5 minutes = warning state
-  // Under 1 minute = final-minute critical alert state
   const isFinalMinute = secondsRemaining <= 60 && secondsRemaining > 0;
   const isWarning = secondsRemaining <= 300 && secondsRemaining > 60;
 
@@ -49,28 +52,28 @@ export const Timer: React.FC<TimerProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border font-mono text-sm font-semibold transition-all ${
+      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md border font-mono text-xs sm:text-sm font-semibold transition-all select-none ${
         isFinalMinute
-          ? 'bg-rose-100 border-rose-400 text-rose-800 animate-bounce dark:bg-rose-950/80 dark:border-rose-600 dark:text-rose-200'
+          ? 'bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white shadow-xs'
           : isWarning
-          ? 'bg-amber-50 border-amber-300 text-amber-800 dark:bg-amber-950/50 dark:border-amber-700 dark:text-amber-200'
-          : 'bg-slate-50 border-slate-200 text-slate-800 dark:bg-slate-850 dark:border-slate-800 dark:text-slate-200'
+          ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white border-neutral-400 dark:border-neutral-600'
+          : 'bg-neutral-50 border-neutral-300 text-neutral-900 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100'
       } ${className}`}
       role="timer"
       aria-live="polite"
       title={isFinalMinute ? 'FINAL MINUTE: Assessment will auto-submit at 00:00' : isWarning ? 'Warning: Less than 5 minutes remaining' : 'Remaining Time'}
     >
       {isFinalMinute ? (
-        <AlertTriangle className="w-4 h-4 text-rose-600 animate-pulse" />
+        <AlertTriangle className="w-3.5 h-3.5" />
       ) : (
-        <Clock className={`w-4 h-4 ${isWarning ? 'text-amber-600' : 'text-slate-400'}`} />
+        <Clock className="w-3.5 h-3.5 text-neutral-500" />
       )}
       <span>
         {hours > 0 && `${formatUnit(hours)}:`}
         {formatUnit(minutes)}:{formatUnit(seconds)}
       </span>
       {isFinalMinute && (
-        <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-300 tracking-wider">
+        <span className="text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded bg-white text-black dark:bg-black dark:text-white">
           FINAL MINUTE
         </span>
       )}

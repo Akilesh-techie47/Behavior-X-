@@ -19,10 +19,10 @@ export const EmptyState: React.FC<StateFeedbackProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 ${className}`}>
-      {icon && <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-slate-200 dark:border-slate-800 mb-3 text-slate-400">{icon}</div>}
-      <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200">{title}</h4>
-      {description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">{description}</p>}
+    <div className={`flex flex-col items-center justify-center p-8 text-center border border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 font-mono ${className}`}>
+      {icon && <div className="p-3 bg-white dark:bg-neutral-850 border border-neutral-300 dark:border-neutral-700 mb-3 text-neutral-500">{icon}</div>}
+      <h4 className="text-xs uppercase font-bold text-neutral-900 dark:text-neutral-100">{title}</h4>
+      {description && <p className="text-[11px] text-neutral-500 mt-1 max-w-sm">{description}</p>}
       {actionText && onAction && (
         <Button variant="outline" size="sm" className="mt-4" onClick={onAction}>
           {actionText}
@@ -37,10 +37,10 @@ export const LoadingState: React.FC<{ message?: string; className?: string }> = 
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-12 text-center ${className}`}>
-      <div className="w-9 h-9 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
-      <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">{message}</h4>
-      <p className="text-xs text-slate-400 mt-1">Transient client-side initialization</p>
+    <div className={`flex flex-col items-center justify-center p-12 text-center font-mono ${className}`}>
+      <div className="w-8 h-8 border-2 border-neutral-950 dark:border-neutral-100 border-t-transparent animate-spin mb-4" />
+      <h4 className="text-xs uppercase font-bold text-neutral-900 dark:text-neutral-100">{message}</h4>
+      <p className="text-[10px] text-neutral-500 mt-1">Transient client-side initialization</p>
     </div>
   );
 };
@@ -49,17 +49,17 @@ export const ErrorState: React.FC<StateFeedbackProps> = ({
   title,
   description,
   icon,
-  actionText = 'Retry System Operation',
+  actionText = 'Retry Operation',
   onAction,
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-8 text-center rounded-2xl border border-rose-200 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20 ${className}`}>
-      {icon && <div className="p-3 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-rose-200 dark:border-rose-800 mb-3 text-rose-500">{icon}</div>}
-      <h4 className="text-sm font-semibold text-rose-900 dark:text-rose-200">{title}</h4>
-      {description && <p className="text-xs text-rose-700/80 dark:text-rose-300/80 mt-1 max-w-sm">{description}</p>}
+    <div className={`flex flex-col items-center justify-center p-8 text-center border border-neutral-950 dark:border-neutral-100 bg-neutral-100 dark:bg-neutral-900 font-mono ${className}`}>
+      {icon && <div className="p-3 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 mb-3 text-neutral-900 dark:text-neutral-100">{icon}</div>}
+      <h4 className="text-xs uppercase font-bold text-neutral-950 dark:text-neutral-50">{title}</h4>
+      {description && <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-1 max-w-sm">{description}</p>}
       {onAction && (
-        <Button variant="danger" size="sm" className="mt-4" onClick={onAction}>
+        <Button variant="primary" size="sm" className="mt-4" onClick={onAction}>
           {actionText}
         </Button>
       )}

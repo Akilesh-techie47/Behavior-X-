@@ -1,72 +1,66 @@
-# Behavior-X: Privacy-Preserving Architecture & Technical Charter
-**HACKEX '26 Hackathon Engineering Document**  
-*Core Architectural Axiom:* **"Don't watch the student. Understand the behavior."**
+# BEHAVIOR-X V2 — PRIVACY CHARTER & DATA MINIMIZATION SPECIFICATION
+
+## Core Axiom
+> **"Don't watch the student. Understand the evidence."**
+
+Behavior-X V2 treats privacy not as a compliance checkbox, but as an **invariant mathematical and architectural constraint**.
 
 ---
 
-## 1. Architectural Philosophy: Privacy as an Invariant Property
+## 1. Technical Data Minimization Matrix
 
-Conventional proctoring tools treat privacy as an afterthought or a legal disclaimer while uploading gigabytes of high-definition video of students' living spaces to centralized servers.
-
-**Behavior-X treats privacy as an invariant technical constraint.** Privacy is enforced through client-side edge computing, transient volatile memory buffers, and mathematical signal extraction.
-
-> **Design Standard:** Behavior-X is designed strictly around data minimization and privacy-preserving processing principles.
-
----
-
-## 2. Technical Data Minimization Matrix
-
-| Data Domain | What Behavior-X Collects | What Behavior-X Strictly Avoids |
-| :--- | :--- | :--- |
-| **Video & Camera** | Ingested transiently in browser RAM for <100ms; downsampled to calculate contour deltas; discarded immediately. | **Zero raw video recordings**, zero screenshots, zero frame persistence to disk. |
-| **Facial Telemetry** | Spatial orientation vectors (yaw, pitch) and presence counts (0, 1, or >1). | **Zero biometric templates**, zero facial recognition embeddings, zero demographic profiling (race, age, gender). |
-| **Browser Environment**| Timestamped `blur` and `visibilitychange` duration in milliseconds. | No keystroke logging, no external browser history inspection, no background file system access. |
-| **Candidate Identity** | University student ID token and institutional email address. | No residential address, phone numbers, or government biometric identifiers. |
-| **Examiner Reports** | Structured mathematical JSON events (timestamp, type, duration, confidence). | No video replays, no audio listening streams. |
+| Data Domain | What Behavior-X Collects | What Behavior-X Strictly Prohibits |
+|:---|:---|:---|
+| **Optical Video Feed** | Processed transiently in volatile RAM (<300ms per frame) to compute geometric bounding and head orientation vectors. Purged immediately. | **Zero raw video recordings**, zero screenshots, zero frame persistence to disk, IndexedDB, or server. |
+| **Facial Telemetry** | Spatial orientation angles (pitch, yaw, roll proxy) and person counts (0, 1, >1). | **Zero biometric templates**, zero facial recognition embeddings, zero demographic profiling (race, gender, age, medical traits). |
+| **Browser Telemetry** | Standard browser event timestamps (`visibilitychange`, `window.blur`, `fullscreenchange`). | No inspection of OS processes, background tabs, external browser history, or local disk files. |
+| **Keystroke Telemetry** | Key interval timings, dwell durations, and speed (kps) relative to session baseline. | **Zero keystroke keylogger content**. Text characters of answers are never captured as telemetry events. |
+| **Mouse Telemetry** | Cursor displacement velocity, acceleration, and hesitation intervals. | No screen recording or pixel scraping. |
+| **Audit Logs** | Structured mathematical JSON records (timestamp, type, duration, confidence, Three Core Scores). | No unredacted video replays or ambient microphone eavesdropping. |
 
 ---
 
-## 3. Transient Edge Processing Pipeline
+## 2. Ephemeral In-Memory Optical Buffer Protocol
 
-```
-WebCam Hardware Device
+```text
+Webcam Optical Sensor
          │
          ▼
-navigator.mediaDevices.getUserMedia (Client RAM only)
+navigator.mediaDevices.getUserMedia (Volatile RAM)
          │
          ▼
-HTML5 Canvas (160x120 transient buffer)
+Offscreen HTML5 Canvas (160x120 transient buffer)
          │
-         ├── Calculated: Estimated Yaw / Pitch Angles
-         ├── Calculated: Presence Contour Count
-         │
-         ▼
-Canvas dereferenced ──► Volatile Frame Garbage Collected (0ms Retention)
+         ├── Extracted: Head Pose Vectors (Pitch / Yaw / Roll)
+         ├── Extracted: Face Bounding Contours (Count: 0, 1, 2)
+         ├── Extracted: Optical Illuminance Quality Metric
          │
          ▼
-Emitted: Structured Mathematical JSON Event (e.g. `LOOKING_AWAY`, duration: 2400ms)
+Buffer Purged & Dereferenced (0ms Persistence)
+         │
+         ▼
+Emitted: Structured Mathematical Telemetry Event
+         (e.g., `LOOKING_AWAY`, duration: 2800ms, confidence: 0.89)
 ```
 
 ---
 
-## 4. Explainable Scoring, Not Automated Accusation
+## 3. Configurable Monitoring Profiles
 
-- **No Guilt Determinations:** Behavior-X algorithms output an **anomaly index (0–100)** indicating review priority.
-- **Neutral Terminology:** The system uses neutral terminology such as *"Attention deviation"*, *"Multiple-person presence"*, and *"Window visibility change"*. It never uses accusations like *"Cheating detected"*.
-- **Human-In-The-Loop:** Academic examiners remain the sole decision makers. Alerts explain exactly which observable signals contributed to the review state.
+Institutions configure telemetry depth according to examination stakes:
 
----
-
-## 5. Retention & Auto-Purge Policy
-
-- **Raw Optical Video:** 0ms retention. Never saved.
-- **Behavioral Events:** Session-limited. Kept only during active testing and temporarily stored in candidate metadata for academic integrity review (maximum 30 days for board appeals).
-- **Audit Reports:** Sealed JSON telemetry without media assets.
+1. **STANDARD Profile:**
+   - Active: Browser visibility, window blur, question response timing, item navigation.
+   - Optical sensor: INACTIVE.
+2. **BEHAVIORAL Profile (Default):**
+   - Active: Standard + On-device optical orientation, face presence, keystroke intervals, cursor velocity.
+3. **ENHANCED Profile:**
+   - Active: Behavioral + AI-era interaction pattern detection, in-page clipboard analysis, temporal sequence correlation.
 
 ---
 
-## 6. Security Guarantees for MVP
+## 4. Ethical Non-Accusatory Terminology (Rule 8 & 9)
 
-- **No Client Secrets:** All authentication and telemetry use client tokens with zero hardcoded backend keys in bundle assets.
-- **Local Storage Isolation:** Saved state is scoped solely to the student workspace origin and sanitized against script injection.
-- **Continuous Disconnection Tracking:** Optical tracks immediately trigger `CAMERA_DISCONNECTED` telemetry when interrupted or revoked.
+- **Zero Intent Attribution:** The system reports observable signals (*"Attention deviation"*, *"Multiple-person signal"*, *"External interaction sequence"*). It never outputs accusations such as *"Student cheated"* or *"Generated by ChatGPT"*.
+- **No Sensitive Inference (Rule 9):** Race, ethnicity, religion, political beliefs, medical conditions, mental state, or personality traits are strictly prohibited from being inferred or classified.
+- **Human Authority:** All determinations are finalized by human academic examiners using the Review Decision Workflow (`CONFIRMED`, `DISMISSED`, `UNCERTAIN`).

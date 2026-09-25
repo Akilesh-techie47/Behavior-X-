@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import {
-  ShieldCheck,
+  Sparkles,
   BookOpen,
-  Layers,
   MonitorCheck,
+  Layers,
   Lock,
   PlayCircle,
   CheckCircle2,
   XCircle,
+  Clock,
   Activity,
   Shield,
-  Sparkles,
+  Bot,
 } from 'lucide-react';
 import { PrivacyBadge } from './PrivacyBadge';
 import { runEngineTests, TestResult } from '../../engine/engineTests';
@@ -43,42 +44,42 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
   };
 
   const navItems = [
-    { label: 'Home', path: '/' },
-    { label: 'Interactive Demo', path: '/demo', icon: <Sparkles className="w-3.5 h-3.5 text-amber-500" /> },
-    { label: 'Take Exam', path: '/student', icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { label: 'Active Test', path: '/exam', icon: <MonitorCheck className="w-3.5 h-3.5" /> },
-    { label: 'Teacher Dashboard', path: '/examiner', icon: <Layers className="w-3.5 h-3.5" /> },
-    { label: 'Privacy Policy', path: '/privacy', icon: <Lock className="w-3.5 h-3.5" /> },
+    { label: 'Overview', path: '/' },
+    { label: 'Live Demo', path: '/demo', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { label: 'Candidate Portal', path: '/student', icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { label: 'Exam Workspace', path: '/exam', icon: <MonitorCheck className="w-3.5 h-3.5" /> },
+    { label: 'Examiner Center', path: '/examiner', icon: <Layers className="w-3.5 h-3.5" /> },
+    { label: 'Privacy Charter', path: '/privacy', icon: <Lock className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-2xs">
+    <header className="sticky top-0 z-40 w-full border-b border-neutral-200 dark:border-neutral-850 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand */}
         <div
           onClick={() => onNavigate('/')}
           className="flex items-center gap-3 cursor-pointer group select-none"
         >
-          <div className="w-9 h-9 rounded-xl bg-slate-900 text-white dark:bg-indigo-600 flex items-center justify-center font-mono font-bold text-base shadow-sm group-hover:bg-indigo-600 transition-colors">
-            <span className="text-white tracking-tighter">BX</span>
+          <div className="w-8 h-8 rounded-md bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-mono font-bold text-sm tracking-tight border border-neutral-800 dark:border-neutral-200">
+            BX
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 dark:text-white text-base tracking-tight">
-                BEHAVIOR<span className="text-indigo-600 dark:text-indigo-400 font-extrabold">-X</span>
+              <span className="font-extrabold text-black dark:text-white text-base tracking-tight font-mono">
+                BEHAVIOR-X
               </span>
-              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                HACKEX '26
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700">
+                V2
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium tracking-tight hidden sm:block">
-              Privacy-Friendly Exam Proctoring
+            <p className="text-[11px] text-neutral-500 font-normal tracking-tight hidden sm:block">
+              Multimodal Examination Intelligence Platform
             </p>
           </div>
         </div>
 
         {/* Navigation items */}
-        <nav className="hidden md:flex items-center gap-1.5">
+        <nav className="hidden md:flex items-center gap-1">
           {navItems.map(item => {
             const isActive =
               currentPath === item.path ||
@@ -87,10 +88,10 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
               <button
                 key={item.path}
                 onClick={() => onNavigate(item.path)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-slate-100 text-slate-900 dark:bg-slate-800 dark:text-white shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-slate-850'
+                    ? 'bg-black text-white dark:bg-white dark:text-black font-semibold shadow-2xs'
+                    : 'text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900'
                 }`}
               >
                 {item.icon}
@@ -104,11 +105,11 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
         <div className="flex items-center gap-2.5">
           <button
             onClick={handleRunAllTests}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-750 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors shadow-2xs"
             title="Run Behavior-X verification tests (AI Layer, Privacy, Signal Engine & Risk Engine)"
           >
-            <PlayCircle className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-            <span className="hidden sm:inline">Run Tests (23/23 Passing)</span>
+            <PlayCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Verification (23 Tests)</span>
             <span className="sm:hidden">Tests</span>
           </button>
           <PrivacyBadge />
@@ -119,177 +120,148 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
       <Modal
         isOpen={isTestModalOpen}
         onClose={() => setIsTestModalOpen(false)}
-        title="Behavior-X System Verification Tests"
-        subtitle="23 automated tests verifying Camera Safety, AI Explanations, Privacy, and Calculations"
+        title="Behavior-X System Verification Suites"
+        subtitle="Automated unit test runs validating Zero-Video Ingestion, Risk Scoring, and AI Prompt Sanitization"
         maxWidth="lg"
         footer={
           <div className="flex items-center justify-between w-full">
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>All 23 Verification Tests Passed Successfully</span>
+            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-black dark:text-white" />
+              <span>All 23 Verification Suites Executed Successfully</span>
             </span>
             <Button variant="primary" size="sm" onClick={() => setIsTestModalOpen(false)}>
-              Close Tests
+              Close
             </Button>
           </div>
         }
       >
         <div className="space-y-4">
           {/* Sub-tab selection */}
-          <div className="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-xs">
+          <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-900 rounded-md text-xs">
             <button
               onClick={() => setActiveTab('ai')}
-              className={`flex-1 py-1.5 font-semibold rounded-md transition-all ${
+              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 activeTab === 'ai'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
-              AI Notes (5)
+              <Bot className="w-3.5 h-3.5" />
+              <span>AI Layer ({aiTests?.length || 5})</span>
             </button>
             <button
               onClick={() => setActiveTab('privacy')}
-              className={`flex-1 py-1.5 font-semibold rounded-md transition-all ${
+              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 activeTab === 'privacy'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
-              Privacy (4)
+              <Shield className="w-3.5 h-3.5" />
+              <span>Privacy ({privacyTests?.length || 6})</span>
             </button>
             <button
               onClick={() => setActiveTab('risk')}
-              className={`flex-1 py-1.5 font-semibold rounded-md transition-all ${
+              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 activeTab === 'risk'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
-              Scores (9)
+              <Activity className="w-3.5 h-3.5" />
+              <span>Risk Engine ({riskTests?.length || 6})</span>
             </button>
             <button
               onClick={() => setActiveTab('signals')}
-              className={`flex-1 py-1.5 font-semibold rounded-md transition-all ${
+              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
                 activeTab === 'signals'
-                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-xs'
-                  : 'text-slate-600 dark:text-slate-400'
+                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
+                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
               }`}
             >
-              Sensors (5)
+              <Clock className="w-3.5 h-3.5" />
+              <span>Signal Logic ({signalTests?.length || 6})</span>
             </button>
           </div>
 
-          {activeTab === 'ai' && aiTests && (
-            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-              {aiTests.map((t, idx) => (
+          {/* Tab contents */}
+          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            {activeTab === 'ai' &&
+              aiTests?.map((t, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl border text-xs leading-relaxed ${
-                    t.passed
-                      ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-                      : 'bg-rose-50/80 border-rose-200 text-rose-950 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
-                  }`}
+                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
                 >
                   <div className="flex items-center justify-between font-semibold">
-                    <div className="flex items-center gap-2">
-                      {t.passed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      )}
-                      <span>{t.name}</span>
-                    </div>
-                    <span className="text-[11px] opacity-75">{t.durationMs}ms</span>
+                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
+                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                      <span>{t.durationMs}ms</span>
+                    </span>
                   </div>
-                  <p className="mt-1 pl-6 text-xs text-slate-700 dark:text-slate-300">{t.message}</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
+                    {t.message}
+                  </p>
                 </div>
               ))}
-            </div>
-          )}
 
-          {activeTab === 'privacy' && privacyTests && (
-            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-              {privacyTests.map((t, idx) => (
+            {activeTab === 'privacy' &&
+              privacyTests?.map((t, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl border text-xs leading-relaxed ${
-                    t.passed
-                      ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-                      : 'bg-rose-50/80 border-rose-200 text-rose-950 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
-                  }`}
+                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
                 >
                   <div className="flex items-center justify-between font-semibold">
-                    <div className="flex items-center gap-2">
-                      {t.passed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      )}
-                      <span>{t.name}</span>
-                    </div>
-                    <span className="text-[11px] opacity-75">{t.durationMs}ms</span>
+                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
+                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                      <span>{t.durationMs}ms</span>
+                    </span>
                   </div>
-                  <p className="mt-1 pl-6 text-xs text-slate-700 dark:text-slate-300">{t.message}</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
+                    {t.message}
+                  </p>
                 </div>
               ))}
-            </div>
-          )}
 
-          {activeTab === 'risk' && riskTests && (
-            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-              {riskTests.map((t, idx) => (
+            {activeTab === 'risk' &&
+              riskTests?.map((t, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl border text-xs leading-relaxed ${
-                    t.passed
-                      ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-                      : 'bg-rose-50/80 border-rose-200 text-rose-950 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
-                  }`}
+                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
                 >
                   <div className="flex items-center justify-between font-semibold">
-                    <div className="flex items-center gap-2">
-                      {t.passed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      )}
-                      <span>{t.name}</span>
-                    </div>
-                    <span className="text-[11px] opacity-75">{t.durationMs}ms</span>
+                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
+                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                      <span>{t.durationMs}ms</span>
+                    </span>
                   </div>
-                  <p className="mt-1 pl-6 text-xs text-slate-700 dark:text-slate-300">{t.message}</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
+                    {t.message}
+                  </p>
                 </div>
               ))}
-            </div>
-          )}
 
-          {activeTab === 'signals' && signalTests && (
-            <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
-              {signalTests.map((t, idx) => (
+            {activeTab === 'signals' &&
+              signalTests?.map((t, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl border text-xs leading-relaxed ${
-                    t.passed
-                      ? 'bg-emerald-50/80 border-emerald-200 text-emerald-950 dark:bg-emerald-950/40 dark:border-emerald-800 dark:text-emerald-200'
-                      : 'bg-rose-50/80 border-rose-200 text-rose-950 dark:bg-rose-950/40 dark:border-rose-800 dark:text-rose-200'
-                  }`}
+                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
                 >
                   <div className="flex items-center justify-between font-semibold">
-                    <div className="flex items-center gap-2">
-                      {t.passed ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                      )}
-                      <span>{t.name}</span>
-                    </div>
-                    <span className="text-[11px] opacity-75">{t.durationMs}ms</span>
+                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
+                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
+                      <span>{t.durationMs}ms</span>
+                    </span>
                   </div>
-                  <p className="mt-1 pl-6 text-xs text-slate-700 dark:text-slate-300">{t.message}</p>
+                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
+                    {t.message}
+                  </p>
                 </div>
               ))}
-            </div>
-          )}
+          </div>
         </div>
       </Modal>
     </header>

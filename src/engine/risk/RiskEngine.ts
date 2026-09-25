@@ -4,6 +4,8 @@ import {
   RiskState,
   RiskFactor,
   RiskTimelinePoint,
+  EvidenceQualityLevel,
+  ObservationQualityLevel,
 } from '../../types';
 import { RiskConfig, DEFAULT_RISK_CONFIG } from './riskConfig';
 import { RiskWindow } from './RiskWindow';
@@ -22,6 +24,10 @@ export class RiskEngine {
 
   /**
    * Main evaluation method: converts raw behavior events into an explainable risk state
+   * featuring the THREE CORE SCORES:
+   * 1. Integrity Review Priority (0-100)
+   * 2. Evidence Quality (0-100)
+   * 3. System Observation Quality (0-100)
    */
   public evaluateRisk(
     events: BehaviorEvent[],
@@ -31,21 +37,36 @@ export class RiskEngine {
     const windowMs = this.config.windowDurationMs;
     const eventsInWindow = this.windowManager.getEventsInWindow(events, now);
 
+    // Compute Observation Quality (Health of sensory pipelines)
+    const observationQuality = this.calculateObservationQuality(events, now);
+
     // If no events in the active window
     if (eventsInWindow.length === 0) {
       return {
         currentScore: 0,
         level: 'NORMAL',
         confidence: 0.95,
+
+        // Three Core Scores
+        reviewPriorityScore: 0,
+        reviewPriorityLevel: 'NORMAL',
+        evidenceQualityScore: 92,
+        evidenceQualityLevel: 'EXCELLENT',
+        observationQualityScore: observationQuality.score,
+        observationQualityLevel: observationQuality.level,
+
         timeWindowSeconds: Math.round(windowMs / 1000),
         eventCountInWindow: 0,
-        humanReadableExplanation: 'Nominal physiological candidate baseline observed within the active window.',
+        humanReadableExplanation: 'Nominal candidate baseline observed within the active observation window.',
         topContributingFactors: [],
         contributingSignalSummary: ['No active anomalies in the last 30 seconds'],
         breakdown: {
           attentionDeviationScore: 0,
           presenceScore: 0,
           environmentScore: 0,
+          interactionScore: 0,
+          questionTimingScore: 0,
+          temporalSequenceScore: 0,
         },
         primaryContributingFactor: 'Nominal physiological baseline',
         timeline: this.buildTimeline(events, examStartTime, now),
@@ -67,6 +88,9 @@ export class RiskEngine {
       eventsInWindow.reduce((acc, e) => acc + (e.confidence || 0.8), 0) / eventsInWindow.length;
     const confidence = parseFloat(Math.min(0.99, Math.max(0.65, avgEventConfidence)).toFixed(2));
 
+    // Calculate Evidence Quality (Robustness & multi-channel corroboration)
+    const evidenceQuality = this.calculateEvidenceQuality(eventsInWindow, avgEventConfidence);
+
     // Generate human-readable explanation and summary
     const explanation = this.generateHumanExplanation(level, clampedScore, breakdown.factors, eventsInWindow.length, windowMs);
     const summary = this.generateSignalSummary(breakdown.factors);
@@ -75,6 +99,15 @@ export class RiskEngine {
       currentScore: clampedScore,
       level,
       confidence,
+
+      // Three Core Scores
+      reviewPriorityScore: clampedScore,
+      reviewPriorityLevel: level,
+      evidenceQualityScore: evidenceQuality.score,
+      evidenceQualityLevel: evidenceQuality.level,
+      observationQualityScore: observationQuality.score,
+      observationQualityLevel: observationQuality.level,
+
       timeWindowSeconds: Math.round(windowMs / 1000),
       eventCountInWindow: eventsInWindow.length,
       humanReadableExplanation: explanation,
@@ -104,6 +137,70 @@ export class RiskEngine {
   }
 
   /**
+   * Calculates Evidence Quality (0-100):
+   * Factors in event confidence, multi-sensor agreement, and observation duration.
+   */
+  private calculateEvidenceQuality(
+    eventsInWindow: BehaviorEvent[],
+    avgConfidence: number
+  ): { score: number; level: EvidenceQualityLevel } {
+    let score = Math.round(avgConfidence * 80);
+
+    // Distinct detector categories boost evidence robustness
+    const distinctCategories = new Set(eventsInWindow.map(e => e.category)).size;
+    if (distinctCategories >= 3) score += 18;
+    else if (distinctCategories === 2) score += 10;
+
+    // Sustained duration boost
+    const hasSustainedEvents = eventsInWindow.some(e => (e.durationSeconds || 0) >= 3);
+    if (hasSustainedEvents) score += 8;
+
+    score = Math.min(100, Math.max(20, score));
+
+    let level: EvidenceQualityLevel = 'POOR';
+    if (score >= 82) level = 'EXCELLENT';
+    else if (score >= 65) level = 'GOOD';
+    else if (score >= 45) level = 'MODERATE';
+
+    return { score, level };
+  }
+
+  /**
+   * Calculates System Observation Quality (0-100):
+   * Evaluates sensor reliability, disconnects, lighting proxy, and API support.
+   */
+  private calculateObservationQuality(
+    allEvents: BehaviorEvent[],
+    now: number
+  ): { score: number; level: ObservationQualityLevel } {
+    let score = 94; // Baseline optimal
+
+    // Deduct for recent camera disconnections or optical drops
+    const recentDisconnects = allEvents.filter(
+      e => e.type === 'CAMERA_DISCONNECTED' && now - e.timestamp <= 1000 * 60 * 10
+    );
+    if (recentDisconnects.length > 0) {
+      score -= Math.min(45, recentDisconnects.length * 25);
+    }
+
+    // Check for lighting / occlusion flags
+    const lightingIssues = allEvents.filter(
+      e => (e.type === 'LIGHTING_DEGRADED' || e.type === 'CAMERA_OCCLUSION') && now - e.timestamp <= 1000 * 60 * 5
+    );
+    if (lightingIssues.length > 0) {
+      score -= 20;
+    }
+
+    score = Math.min(100, Math.max(15, score));
+
+    let level: ObservationQualityLevel = 'DEGRADED';
+    if (score >= 80) level = 'OPTIMAL';
+    else if (score >= 55) level = 'ACCEPTABLE';
+
+    return { score, level };
+  }
+
+  /**
    * Generates ethical, non-accusatory explanation of what triggered the risk score
    */
   private generateHumanExplanation(
@@ -127,7 +224,7 @@ export class RiskEngine {
     }
 
     if (level === 'MEDIUM') {
-      return `Several behavioral signals detected (${eventCount} occurrences within ${windowSec}s), predominantly ${topFactorText}. Pattern noted for review.`;
+      return `Several behavioral signals detected (${eventCount} occurrences within ${windowSec}s), predominantly ${topFactorText}. Pattern noted for examiner review.`;
     }
 
     if (level === 'HIGH') {
@@ -164,7 +261,7 @@ export class RiskEngine {
   }
 
   /**
-   * Reconstructs chronological risk timeline over the exam course (e.g. 10:02, 10:08, 10:11)
+   * Reconstructs chronological risk timeline over the exam course
    */
   public buildTimeline(
     allEvents: BehaviorEvent[],
@@ -211,6 +308,8 @@ export class RiskEngine {
         level: this.calculateRiskLevel(score),
         activeEventCount: windowEvents.length,
         primarySignal,
+        evidenceQuality: Math.min(98, Math.max(60, 92 - (score > 50 ? 8 : 0))),
+        observationQuality: 94,
       });
     }
 

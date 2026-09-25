@@ -6,8 +6,6 @@ import {
   RefreshCw,
   Info,
   CheckCircle2,
-  AlertCircle,
-  HelpCircle,
 } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
@@ -55,12 +53,12 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
 
   return (
     <Card
-      title="AI Summary & Review Assistant"
-      subtitle="Easy-to-read explanation of student activity during the test"
+      title="AI Explanation & Examiner Assistant"
+      subtitle="Generative AI synthesis converting mathematical telemetry into objective, non-accusatory evidence summary"
       badge={
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[11px] font-medium text-indigo-900 dark:text-indigo-200">
-          <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-          <span>{explanation?.source === 'gemini' ? 'Gemini AI Assistant' : 'Instant Offline Summary'}</span>
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-[10px] font-mono font-semibold">
+          <Sparkles className="w-3 h-3" />
+          <span>{explanation?.source === 'gemini' ? 'GEMINI 3.8 FLASH' : 'DETERMINISTIC FALLBACK ENGINE'}</span>
         </div>
       }
       className={className}
@@ -72,37 +70,37 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
           disabled={loading}
           icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
         >
-          {loading ? 'Thinking...' : 'Refresh Summary'}
+          {loading ? 'Synthesizing...' : 'Re-Evaluate AI'}
         </Button>
       }
     >
       <div className="space-y-4 text-xs leading-relaxed">
         {/* Core Narrative Summary */}
-        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850/80 border border-slate-200 dark:border-slate-800 space-y-2">
-          <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100 font-bold text-xs uppercase tracking-wider">
-            <Bot className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-            <span>Overall Exam Summary</span>
+        <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
+          <div className="flex items-center gap-2 text-black dark:text-white font-bold text-xs uppercase tracking-wider font-mono">
+            <Bot className="w-4 h-4" />
+            <span>Structured Telemetry Synthesis</span>
           </div>
-          <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-normal text-sm">
-            {explanation?.sessionSummary || 'Creating plain English summary...'}
+          <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal text-sm">
+            {explanation?.sessionSummary || 'Synthesizing objective examination summary...'}
           </p>
-          <div className="pt-2 border-t border-slate-200 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-400">
-            <strong className="text-slate-800 dark:text-slate-200">What caused this:</strong> {explanation?.contributingSignalsExplanation}
+          <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400">
+            <strong className="text-black dark:text-white font-mono">Observable Contributors:</strong> {explanation?.contributingSignalsExplanation}
           </div>
         </div>
 
         {/* Observable Patterns & Review Advice Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           {/* Left: Strongest Patterns */}
-          <div className="p-3.5 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50/40 dark:bg-indigo-950/30 space-y-2">
-            <h5 className="font-bold text-indigo-950 dark:text-indigo-200 text-xs flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-              <span>Main Things We Noticed</span>
+          <div className="p-3.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 space-y-2">
+            <h5 className="font-bold text-black dark:text-white text-xs flex items-center gap-1.5 uppercase tracking-wider font-mono">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Correlated Behavioral Patterns</span>
             </h5>
-            <ul className="space-y-1.5 text-xs text-slate-800 dark:text-slate-200">
+            <ul className="space-y-1.5 text-xs text-neutral-700 dark:text-neutral-300">
               {explanation?.strongestObservablePatterns?.map((pat, idx) => (
                 <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-indigo-600 dark:text-indigo-400 font-bold">•</span>
+                  <span className="text-black dark:text-white font-bold">•</span>
                   <span>{pat}</span>
                 </li>
               ))}
@@ -110,15 +108,15 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
           </div>
 
           {/* Right: Suggested Review Points */}
-          <div className="p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/40 dark:bg-amber-950/30 space-y-2">
-            <h5 className="font-bold text-amber-950 dark:text-amber-200 text-xs flex items-center gap-1.5">
-              <Info className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-              <span>Recommended Next Steps for Teacher</span>
+          <div className="p-3.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 space-y-2">
+            <h5 className="font-bold text-black dark:text-white text-xs flex items-center gap-1.5 uppercase tracking-wider font-mono">
+              <Info className="w-3.5 h-3.5" />
+              <span>Examiner Investigation Recommendations</span>
             </h5>
-            <ul className="space-y-1.5 text-xs text-slate-800 dark:text-slate-200">
+            <ul className="space-y-1.5 text-xs text-neutral-700 dark:text-neutral-300">
               {explanation?.suggestedReviewPoints?.map((pt, idx) => (
                 <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-amber-600 dark:text-amber-400 font-bold">•</span>
+                  <span className="text-black dark:text-white font-bold">•</span>
                   <span>{pt}</span>
                 </li>
               ))}
@@ -127,10 +125,12 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
         </div>
 
         {/* Ethical Uncertainty Disclaimer Banner */}
-        <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-800/80 text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2.5 border border-slate-200 dark:border-slate-700">
-          <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
+        <div className="p-3 rounded-md bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2.5 border border-neutral-200 dark:border-neutral-800">
+          <ShieldCheck className="w-4 h-4 text-black dark:text-white flex-shrink-0 mt-0.5" />
           <div>
-            <strong className="text-slate-900 dark:text-white">Fairness & Privacy Promise:</strong>{' '}
+            <strong className="text-black dark:text-white font-mono uppercase text-[10px] block">
+              Ethical Mandate: Non-Accusatory Telemetry
+            </strong>
             {explanation?.uncertaintyDisclaimer}
           </div>
         </div>

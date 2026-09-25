@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, ShieldAlert, Cpu } from 'lucide-react';
+import { ShieldCheck, Cpu } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
 
@@ -10,54 +10,54 @@ export const PrivacyBadge: React.FC<{ className?: string }> = ({ className = '' 
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/50 text-xs font-semibold text-emerald-900 dark:text-emerald-200 hover:bg-emerald-100 transition-colors shadow-2xs ${className}`}
-        title="Click to view our privacy promise"
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-semibold text-black dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors shadow-2xs ${className}`}
+        title="Click to view our privacy architecture"
       >
-        <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-        <span>Privacy Shield Active</span>
+        <ShieldCheck className="w-3.5 h-3.5" />
+        <span>Privacy Shield</span>
       </button>
 
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Behavior-X Privacy Promise"
-        subtitle="How we protect student privacy during exams"
+        title="Behavior-X Privacy Architecture"
+        subtitle="Zero raw video retention and privacy-preserving edge processing"
         maxWidth="lg"
         footer={
           <Button variant="primary" size="sm" onClick={() => setIsOpen(false)}>
-            Got it, thanks!
+            Close Architecture Charter
           </Button>
         }
       >
-        <div className="space-y-4 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-          <div className="p-3.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60 flex items-start gap-3">
-            <Cpu className="w-5 h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0 mt-0.5" />
+        <div className="space-y-4 text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed">
+          <div className="p-3.5 rounded-md bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-start gap-3">
+            <Cpu className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
             <div>
-              <h5 className="font-bold text-indigo-950 dark:text-indigo-200 text-xs">
-                Zero Video or Photo Storage
+              <h5 className="font-bold text-black dark:text-white text-xs">
+                Zero Video or Biometric Storage (0ms)
               </h5>
-              <p className="mt-1 text-xs text-slate-800 dark:text-slate-200">
-                Your webcam is only checked inside your browser to see head movement. Frames are instantly erased in memory in less than a second. No videos, photos, or face scans are ever saved to a server or seen by anyone.
+              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+                Webcam frames are analyzed transiently in volatile RAM for under 100ms and immediately discarded. No video recordings, biometric face embeddings, or demographic profiles are ever stored on disk or transmitted.
               </p>
             </div>
           </div>
 
           <div className="space-y-2">
-            <h5 className="font-bold text-slate-900 dark:text-white text-xs">
-              Our 4 Core Promises to Students
+            <h5 className="font-bold text-black dark:text-white text-xs uppercase tracking-wider">
+              Core Privacy Guarantees
             </h5>
-            <ul className="list-disc pl-5 space-y-2 text-xs text-slate-700 dark:text-slate-300">
+            <ul className="list-disc pl-5 space-y-2 text-xs text-neutral-700 dark:text-neutral-300">
               <li>
-                <strong>Simple Actions Only:</strong> We only check basic movements (like looking away or switching tabs). We never claim to read your mind or judge your thoughts.
+                <strong>Observable Telemetry Only:</strong> The system records observable actions (e.g. looking away, browser tab hidden). It never infers guilt, internal mental states, or protected traits.
               </li>
               <li>
-                <strong>No Face Recognition:</strong> We never identify who you are with facial recognition or store biometric face scans.
+                <strong>No Biometric Recognition:</strong> No identity verification models, facial vectors, or biometric templates are generated.
               </li>
               <li>
-                <strong>Scores Mean "Check Context":</strong> A higher score never means you cheated. It only means "a human teacher should review what happened."
+                <strong>Explainable Evidence:</strong> Scores represent review priorities for human academic staff, supported by inspectable evidence graphs.
               </li>
               <li>
-                <strong>Human Teachers Decide:</strong> A computer will never fail you. A real teacher reviews your answers and any notes before making any decisions.
+                <strong>Human-in-the-Loop Sovereign:</strong> Certified examiners make all determinations. No student is ever automatically accused or penalized.
               </li>
             </ul>
           </div>

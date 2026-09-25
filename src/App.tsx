@@ -64,34 +64,40 @@ export default function App() {
 
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200">
+      <div className="min-h-screen bg-white dark:bg-black text-neutral-950 dark:text-neutral-50 flex flex-col font-sans transition-colors duration-200">
         <Header currentPath={currentPath} onNavigate={navigate} />
 
         <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
           {renderCurrentRoute()}
         </div>
 
-        <footer className="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 py-6 mt-12 text-xs text-slate-500">
+        <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black py-8 mt-12 text-xs font-mono text-neutral-500">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-slate-700 dark:text-slate-300">Behavior-X</span>
+              <span className="font-bold text-neutral-950 dark:text-neutral-50 uppercase">BEHAVIOR-X V2</span>
               <span>•</span>
-              <span>Privacy-Preserving Intelligent Proctoring</span>
+              <span>Multimodal Examination Intelligence Platform</span>
               <span>•</span>
-              <span className="font-mono text-indigo-600 dark:text-indigo-400">HACKEX '26</span>
+              <span className="text-neutral-400">0ms Stored Video</span>
             </div>
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate('/demo')}
-                className="font-mono text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
+                className="text-neutral-950 dark:text-neutral-50 hover:underline font-bold uppercase"
               >
-                Launch Live Demo (/demo)
+                Deterministic Demo (/demo)
+              </button>
+              <button
+                onClick={() => navigate('/examiner')}
+                className="hover:text-neutral-950 dark:hover:text-neutral-200 transition-colors uppercase"
+              >
+                Examiner Console
               </button>
               <button
                 onClick={() => navigate('/privacy')}
-                className="hover:text-slate-900 dark:hover:text-slate-300 transition-colors"
+                className="hover:text-neutral-950 dark:hover:text-neutral-200 transition-colors uppercase"
               >
-                Technical Privacy Charter
+                Privacy Charter
               </button>
             </div>
           </div>

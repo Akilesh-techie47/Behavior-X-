@@ -7,6 +7,7 @@ interface RiskIndicatorProps {
   size?: 'sm' | 'md' | 'lg';
   showDetails?: boolean;
   className?: string;
+  labelOverride?: string;
 }
 
 export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
@@ -15,56 +16,67 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
   size = 'md',
   showDetails = true,
   className = '',
+  labelOverride,
 }) => {
   const normalizedLevel = String(level).toUpperCase();
 
-  const getLevelColor = () => {
+  const getMonochromeConfig = () => {
     switch (normalizedLevel) {
       case 'REVIEW':
         return {
-          stroke: '#e11d48', // rose-600
-          text: 'text-rose-700 dark:text-rose-400',
-          bg: 'bg-rose-50 dark:bg-rose-950/30',
+          stroke: '#000000',
+          darkStroke: '#FFFFFF',
+          text: 'text-black dark:text-white font-extrabold',
+          density: '████████████',
           label: 'Priority Review Required',
+          badgeText: 'REVIEW',
         };
       case 'HIGH':
         return {
-          stroke: '#f43f5e', // rose-500
-          text: 'text-rose-600 dark:text-rose-400',
-          bg: 'bg-rose-50 dark:bg-rose-950/30',
-          label: 'High Anomaly Priority',
+          stroke: '#1F1F1F',
+          darkStroke: '#E5E5E5',
+          text: 'text-neutral-900 dark:text-neutral-100 font-bold',
+          density: '████████',
+          label: 'High Priority',
+          badgeText: 'HIGH',
         };
       case 'MEDIUM':
       case 'ELEVATED':
         return {
-          stroke: '#f59e0b', // amber-500
-          text: 'text-amber-600 dark:text-amber-400',
-          bg: 'bg-amber-50 dark:bg-amber-950/30',
-          label: 'Medium Review Priority',
+          stroke: '#525252',
+          darkStroke: '#A3A3A3',
+          text: 'text-neutral-800 dark:text-neutral-200 font-semibold',
+          density: '█████',
+          label: 'Medium Anomaly',
+          badgeText: 'MEDIUM',
         };
       case 'LOW':
         return {
-          stroke: '#3b82f6', // blue-500
-          text: 'text-blue-600 dark:text-blue-400',
-          bg: 'bg-blue-50 dark:bg-blue-950/30',
+          stroke: '#737373',
+          darkStroke: '#737373',
+          text: 'text-neutral-700 dark:text-neutral-300 font-medium',
+          density: '███',
           label: 'Low Deviation',
+          badgeText: 'LOW',
         };
       case 'NORMAL':
       case 'NOMINAL':
       default:
         return {
-          stroke: '#10b981', // emerald-500
-          text: 'text-emerald-600 dark:text-emerald-400',
-          bg: 'bg-emerald-50 dark:bg-emerald-950/30',
-          label: 'Normal Candidate Baseline',
+          stroke: '#A3A3A3',
+          darkStroke: '#525252',
+          text: 'text-neutral-600 dark:text-neutral-400 font-medium',
+          density: '█',
+          label: 'Normal Baseline',
+          badgeText: 'NORMAL',
         };
     }
   };
 
-  const config = getLevelColor();
+  const config = getMonochromeConfig();
 
-  const radius = size === 'sm' ? 24 : size === 'md' ? 36 : 48;
-  const strokeWidth = size === 'sm' ? 4 : size === 'md' ? 6 : 8;
+  const radius = size === 'sm' ? 22 : size === 'md' ? 34 : 46;
+  const strokeWidth = size === 'sm' ? 3.5 : size === 'md' ? 5 : 7;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
   const svgSize = (radius + strokeWidth) * 2;
@@ -84,41 +96,42 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
             r={radius}
             stroke="currentColor"
             strokeWidth={strokeWidth}
-            className="text-slate-100 dark:text-slate-800"
+            className="text-neutral-200 dark:text-neutral-800"
             fill="transparent"
           />
-          {/* Value circle */}
+          {/* Value circle in monochrome stroke */}
           <circle
             cx={svgSize / 2}
             cy={svgSize / 2}
             r={radius}
-            stroke={config.stroke}
+            stroke="currentColor"
             strokeWidth={strokeWidth}
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             fill="transparent"
-            className="transition-all duration-700 ease-out"
+            className="text-neutral-900 dark:text-neutral-100 transition-all duration-700 ease-out"
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center font-mono font-bold">
-          <span className={`text-slate-900 dark:text-white ${size === 'sm' ? 'text-xs' : size === 'md' ? 'text-base' : 'text-xl'}`}>
+          <span className={`text-neutral-900 dark:text-white ${size === 'sm' ? 'text-xs' : size === 'md' ? 'text-base' : 'text-2xl'}`}>
             {score}
           </span>
-          {size !== 'sm' && <span className="text-[9px] text-slate-400 font-normal">SCORE</span>}
+          {size !== 'sm' && <span className="text-[9px] text-neutral-400 font-normal tracking-widest">PTS</span>}
         </div>
       </div>
 
       {showDetails && (
         <div className="min-w-0">
-          <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-            Behavioral Anomaly Index
+          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
+            {labelOverride || 'Review Priority Index'}
           </div>
-          <div className={`text-sm font-bold ${config.text} mt-0.5`}>
-            {config.label}
+          <div className={`text-sm tracking-tight ${config.text} mt-0.5 flex items-center gap-2`}>
+            <span>{config.label}</span>
+            <span className="font-mono text-[10px] text-neutral-400 select-none">{config.density}</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
-            Probabilistic indicator for human examiner review (not a determination of guilt).
+          <p className="text-[11px] text-neutral-500 mt-0.5 leading-snug">
+            Evidence priority metric for examiner inspection (not an automated accusation).
           </p>
         </div>
       )}

@@ -16,21 +16,21 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
   };
 
   return (
-    <div className={`p-4 rounded-2xl border border-indigo-200 dark:border-indigo-900/80 bg-indigo-50/50 dark:bg-indigo-950/40 shadow-xs ${className}`}>
+    <div className={`p-4 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 font-sans ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-600 text-white shadow-xs">
+          <div className="p-1.5 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white flex items-center gap-2">
-              <span>HACKATHON DEMO & SIMULATION CONTROLS</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200">
-                {isDemoMode ? 'DEMO MODE ACTIVE' : 'LIVE SENSORS'}
+            <h4 className="font-bold text-xs sm:text-sm text-neutral-950 dark:text-neutral-50 font-mono uppercase flex items-center gap-2">
+              <span>DEMO & SYNTHETIC TELEMETRY INJECTOR</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
+                {isDemoMode ? 'SIMULATION ACTIVE' : 'PHYSICAL SENSORS'}
               </span>
             </h4>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Trigger controlled synthetic behavioral events to demonstrate multi-signal anomaly correlation.
+            <p className="text-[11px] font-mono text-neutral-500">
+              Trigger deterministic telemetry events to demonstrate multi-signal anomaly correlation.
             </p>
           </div>
         </div>
@@ -41,13 +41,13 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
             size="sm"
             onClick={() => setDemoMode(!isDemoMode)}
           >
-            {isDemoMode ? 'Switch to Real Sensor Mode' : 'Enable Demo Simulation Mode'}
+            {isDemoMode ? 'Switch to Physical Hardware' : 'Enable Demo Simulation Mode'}
           </Button>
         </div>
       </div>
 
       {/* Simulation triggers */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-indigo-100 dark:border-indigo-900/60">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800 font-mono">
         <Button
           variant="outline"
           size="sm"
@@ -58,7 +58,7 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
               'Candidate attention deviated towards secondary peripheral workspace for 2.8s.'
             )
           }
-          icon={<Eye className="w-3.5 h-3.5 text-indigo-500" />}
+          icon={<Eye className="w-3.5 h-3.5" />}
         >
           <span>Looking Away</span>
         </Button>
@@ -73,7 +73,7 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
               'Exam browser window lost active operating system focus (window blur).'
             )
           }
-          icon={<Minimize2 className="w-3.5 h-3.5 text-blue-500" />}
+          icon={<Minimize2 className="w-3.5 h-3.5" />}
         >
           <span>Tab / Window Blur</span>
         </Button>
@@ -88,7 +88,7 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
               'Secondary person silhouette registered transiently in camera perimeter.'
             )
           }
-          icon={<Users className="w-3.5 h-3.5 text-amber-500" />}
+          icon={<Users className="w-3.5 h-3.5" />}
         >
           <span>Multiple Faces</span>
         </Button>
@@ -103,14 +103,14 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
               'Candidate absent from camera viewport for 4.5 seconds.'
             )
           }
-          icon={<UserX className="w-3.5 h-3.5 text-rose-500" />}
+          icon={<UserX className="w-3.5 h-3.5" />}
         >
           <span>Face Absence</span>
         </Button>
       </div>
 
       {lastTriggered && (
-        <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-[11px] font-mono text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+        <div className="mt-2.5 px-3 py-1.5 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 text-[11px] font-mono flex items-center gap-1.5 font-bold">
           <CheckCircle2 className="w-3.5 h-3.5" />
           <span>Synthetic event generated & correlated: {lastTriggered}</span>
         </div>

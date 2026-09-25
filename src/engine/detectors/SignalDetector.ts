@@ -1,4 +1,4 @@
-import { BehaviorEvent } from '../types';
+import { BehaviorEvent } from '../../types';
 
 export interface SignalDetector {
   readonly id: string;

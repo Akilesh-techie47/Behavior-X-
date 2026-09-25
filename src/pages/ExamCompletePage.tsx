@@ -32,87 +32,87 @@ export const ExamCompletePage: React.FC<{ onNavigate: (path: string) => void }> 
   };
 
   return (
-    <div className="max-w-2xl mx-auto py-10 space-y-6">
+    <div className="max-w-2xl mx-auto py-10 space-y-6 font-sans">
       {/* Top Completion Badge */}
       <div className="text-center space-y-3">
-        <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto shadow-sm">
-          <CheckCircle2 className="w-9 h-9" />
+        <div className="w-16 h-16 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 flex items-center justify-center mx-auto shadow-sm">
+          <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-950 dark:text-neutral-50 font-mono uppercase">
           Examination Submitted Successfully
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed">
-          Your exam responses have been securely received and sealed. Thank you for completing this assessment.
+        <p className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 max-w-md mx-auto leading-relaxed">
+          Your responses and encrypted behavioral telemetry record have been securely sealed.
         </p>
       </div>
 
       {/* Official Submission Summary & Receipt */}
-      <Card title="Official Assessment Receipt" subtitle="Academic enrollment record">
-        <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+      <Card title="Official Telemetry Receipt" subtitle="Cryptographically sealed examination record">
+        <div className="divide-y divide-neutral-200 dark:divide-neutral-800 text-xs font-mono">
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Submission Status</span>
-            <span className="inline-flex items-center gap-1.5 font-bold font-mono text-emerald-600 dark:text-emerald-400">
+            <span className="text-neutral-500 uppercase">Submission Status</span>
+            <span className="inline-flex items-center gap-1.5 font-bold text-neutral-950 dark:text-neutral-50">
               <CheckCircle2 className="w-4 h-4" />
-              <span>SUBMITTED & VERIFIED</span>
+              <span>SUBMITTED & SEALED</span>
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Course Code & Title</span>
-            <span className="font-semibold text-slate-900 dark:text-white">
+            <span className="text-neutral-500 uppercase">Examination Code</span>
+            <span className="font-semibold text-neutral-950 dark:text-neutral-50">
               {session.settings.courseCode} — {session.settings.examTitle}
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Student Name</span>
-            <span className="font-medium text-slate-800 dark:text-slate-200">
+            <span className="text-neutral-500 uppercase">Candidate Identity</span>
+            <span className="font-medium text-neutral-900 dark:text-neutral-100">
               {session.student.name}
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Student Identification</span>
-            <span className="font-mono text-slate-800 dark:text-slate-200">
+            <span className="text-neutral-500 uppercase">Candidate ID</span>
+            <span className="text-neutral-900 dark:text-neutral-100">
               {session.student.studentId}
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Number of Questions Answered</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
-              {answeredCount} / {questions.length} Questions
+            <span className="text-neutral-500 uppercase">Items Evaluated</span>
+            <span className="font-bold text-neutral-950 dark:text-neutral-50">
+              {answeredCount} / {questions.length} Items
               {unansweredCount > 0 && (
-                <span className="text-slate-400 font-normal ml-1">({unansweredCount} skipped)</span>
+                <span className="text-neutral-400 font-normal ml-1">({unansweredCount} skipped)</span>
               )}
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Exam Completion Time</span>
-            <span className="font-mono text-slate-800 dark:text-slate-200">
+            <span className="text-neutral-500 uppercase">Timestamp</span>
+            <span className="text-neutral-900 dark:text-neutral-100">
               {completionTimeFormatted} ({completionDateFormatted})
             </span>
           </div>
 
           <div className="py-3 flex items-center justify-between">
-            <span className="text-slate-500 font-medium">Optical Sensor Status</span>
-            <span className="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium font-mono text-[11px]">
+            <span className="text-neutral-500 uppercase">Optical Buffer State</span>
+            <span className="inline-flex items-center gap-1.5 text-neutral-950 dark:text-neutral-50 font-medium text-[11px]">
               <ShieldCheck className="w-4 h-4" />
-              <span>Stream Disconnected • RAM Cleared</span>
+              <span>Stream Terminated • RAM Purged</span>
             </span>
           </div>
         </div>
       </Card>
 
-      {/* Privacy Message (Notice: Does not expose suspicious behavior scores to the candidate) */}
-      <div className="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900/60 bg-indigo-50/50 dark:bg-indigo-950/30 text-xs text-indigo-950 dark:text-indigo-200 space-y-1.5">
-        <div className="flex items-center gap-2 font-bold text-indigo-900 dark:text-indigo-100">
-          <Lock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-          <span>Privacy & Data Protection Notice</span>
+      {/* Privacy Notice (Rule 8 & 9 Compliant: Never show raw risk score or accusations to candidate) */}
+      <div className="p-4 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-800 dark:text-neutral-200 space-y-1.5 font-mono">
+        <div className="flex items-center gap-2 font-bold uppercase text-neutral-950 dark:text-neutral-50">
+          <Lock className="w-4 h-4" />
+          <span>Privacy & Ephemeral Processing Notice</span>
         </div>
-        <p className="text-indigo-900/80 dark:text-indigo-300/80 leading-relaxed text-[11px]">
-          In accordance with Behavior-X's privacy charter, no raw video footage, photos, or biometric data were stored during this examination. All transient frames processed on your device were purged upon submission.
+        <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-[11px]">
+          In accordance with Behavior-X's privacy charter, zero raw video footage, photos, or biometric scans were stored during this examination. All transient frames processed in on-device RAM were purged immediately.
         </p>
       </div>
 
@@ -132,7 +132,7 @@ export const ExamCompletePage: React.FC<{ onNavigate: (path: string) => void }> 
           onClick={() => onNavigate(`/examiner/session/${session.id}`)}
           icon={<FileText className="w-4 h-4" />}
         >
-          Switch to Examiner View
+          Examine Session Dossier
         </Button>
       </div>
     </div>

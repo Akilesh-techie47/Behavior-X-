@@ -262,6 +262,7 @@ export const mockSessions: ExamSession[] = [
     },
     settings: {
       examTitle: 'CS 440: Advanced Distributed Systems & Concurrency',
+      courseName: 'CS 440: Advanced Distributed Systems & Concurrency',
       courseCode: 'CS440-S26',
       totalDurationMinutes: 45,
       allowReviewAfterSubmission: true,
@@ -323,6 +324,7 @@ export const mockSessions: ExamSession[] = [
     },
     settings: {
       examTitle: 'CS 440: Advanced Distributed Systems & Concurrency',
+      courseName: 'CS 440: Advanced Distributed Systems & Concurrency',
       courseCode: 'CS440-S26',
       totalDurationMinutes: 45,
       allowReviewAfterSubmission: true,
@@ -403,6 +405,7 @@ export const mockSessions: ExamSession[] = [
     },
     settings: {
       examTitle: 'CS 440: Advanced Distributed Systems & Concurrency',
+      courseName: 'CS 440: Advanced Distributed Systems & Concurrency',
       courseCode: 'CS440-S26',
       totalDurationMinutes: 45,
       allowReviewAfterSubmission: true,

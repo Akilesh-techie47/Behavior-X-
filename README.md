@@ -1,70 +1,93 @@
-# Behavior-X: Privacy-Preserving Intelligent Proctoring
-**HACKEX '26 Hackathon Flagship Project**  
-*Core Architectural Axiom:* **"Don't watch the student. Understand the behavior."**
+# BEHAVIOR-X V2
+
+## AI-Powered Multimodal Examination Integrity & Behavioral Intelligence Platform
+
+> **"Don't watch the student. Understand the evidence."**
+
+Behavior-X V2 upgrades conventional webcam proctoring into an advanced **multimodal examination intelligence platform**. Rather than recording hours of invasive candidate home video, Behavior-X continuously fuses observable telemetry across camera orientation, browser visibility, keystroke dynamics, mouse velocity, and question response timing into **structured, explainable, causal evidence graphs for human examiner review**.
 
 ---
 
-## 1. Project Overview
+## 1. The Three Core Telemetry Metrics
 
-Behavior-X is a privacy-first proctoring and behavioral intelligence platform designed for higher education. Conventional remote proctoring software captures continuous high-definition video of students' private living spaces, uploads recordings to cloud servers, and subjects candidates to automated "cheating" accusations.
+Behavior-X strictly avoids collapsing complex behavior into an arbitrary "cheating probability" percentage. Instead, the platform computes three independent dimensions:
 
-**Behavior-X changes this paradigm:**
-1. **Zero Video Retention:** Video frames are analyzed in transient volatile RAM for under 100ms and discarded immediately. No video is ever saved to disk or broadcasted.
-2. **Deterministic Multi-Signal Correlation:** Anomaly detection uses a 30-second sliding temporal window with documented weights and exponential decay. A momentary glance away is never flagged as cheating.
-3. **Ethical Non-Accusatory AI Layer:** Powered by Gemini 3.8 Flash, the system synthesizes clear, objective explanations of observable telemetry for human academic examiners. It never accuses or infers guilt.
-4. **Offline Deterministic Fallback:** 100% operational even without a webcam, internet connection, or API keys.
+1. **Integrity Review Priority (0–100):** How strongly the observed multi-signal pattern warrants human examiner review.
+2. **Evidence Quality (0–100):** How statistically reliable and corroborated the underlying sensory observations are.
+3. **System Observation Quality (0–100):** How optimally the candidate's sensor and browser monitoring environment operated.
+
+```text
+┌────────────────────────────────────────────────────────────┐
+│ INTEGRITY REVIEW PRIORITY │ EVIDENCE QUALITY │ OBSERVATION QUALITY │
+│         74 / 100          │     88 / 100     │      94 / 100       │
+│           HIGH            │       GOOD       │      OPTIMAL        │
+└────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## 2. Key Features
+## 2. Key Architecture Innovations in V2
 
-- **Interactive Candidate Exam Workspace:** Real-time assessment interface with countdown timer, direct question navigator, review flags, and keyboard shortcuts (`A-D`, `1-4`, `M`, arrows).
-- **Transient Edge Optical Ingestion:** In-memory luminosity, contrast, and spatial contour analyzer extracting yaw/pitch proxy angles and presence states without biometric storage.
-- **Explainable Multi-Signal Risk Engine:** Documented weights for attention deviations, window blurs, tab switches, and multiple persons with cross-category synergy multipliers.
-- **Examiner Command Center:** Cohort oversight, risk distribution, chronological risk timeline, observable signal breakdowns, and examiner review workflow states (`Mark for Review`, `Reviewed`, `Needs Follow-up`).
-- **Dedicated Interactive Demo Sandbox (`/demo`):** 5 pre-built deterministic scenarios with play/pause, time acceleration, step annotations, and a one-click "Launch Judge Demo" mode.
-- **In-Browser Verification Suite:** 22 automated unit test scenarios validating privacy constraints, risk scoring weights, debounce logic, and AI prompt sanitization.
+- **Personal Behavioral Baseline:** The platform establishes a candidate-specific baseline during the first 8 interaction samples (typing speed, pause rate, question reading duration, gaze deviation frequency). Anomalies are detected relative to the student's *own* session rhythm rather than generalized population stereotypes.
+- **Multimodal Signal Fusion:** Cross-category synergy engine correlates camera, browser, keyboard, mouse, and question-level timing with synergy multipliers (1.0x to 2.1x).
+- **Temporal Sequence Engine:** Sliding 45-second sequence analyzer recognizes composite external digital assistance patterns (e.g. Question opened → Long pause → Window blur → Return → Large paste injection → Sub-5s submission).
+- **Question-Level Integrity Heatmap:** Every question item maintains its own behavioral dossier, response duration, and anomaly index.
+- **Formal Causal Evidence Graph:** Directed causal graph mapping raw sensory observations to temporal relationships and risk contributions. Every node is interactive and traceable.
+- **True Mathematical Counterfactual Engine:** Re-runs the scoring engine omitting each observable signal to calculate true score deltas (e.g. "Without browser event: Review Priority drops from 68 to 52").
+- **Behavioral Session Replay:** Examiners can scrub, step through, and replay the chronological telemetry sequence without storing or streaming raw video.
+- **Human-in-the-Loop Review:** Structured review workflow enabling examiners to Confirm, Dismiss, or mark signals Uncertain, with auditable examiner notes.
+- **Deterministic Offline Demo Mode (`/demo`):** 5 pre-configured scenarios operable without a webcam, internet access, or backend availability.
+- **Strict Black-and-White Monochrome Visual Design:** Re-architected with Apple, Linear, and Vercel design aesthetics using pure monochrome tones (`#000000`, `#FFFFFF`, neutral grays). Zero colors.
 
 ---
 
 ## 3. Technology Stack
 
-- **Framework:** React 19 SPA, TypeScript, Vite
-- **Styling:** Tailwind CSS (modern CSS-first theme)
-- **Icons:** Lucide React
-- **AI Assist:** `@google/genai` TypeScript SDK (`gemini-3.8-flash`) with deterministic fallback
-- **State & Signal Storage:** Reactive Event Store with temporal window subscriber patterns
+- **Frontend Core:** React 19 SPA, TypeScript, Vite
+- **Styling System:** Vanilla CSS & Tailwind CSS tokens strictly restricted to monochrome scale
+- **Iconography:** Lucide React
+- **Generative AI Layer:** `@google/genai` TypeScript SDK (`gemini-2.5-flash`) with deterministic offline explanation fallback
+- **Behavioral Pipeline:** Modular sensory detectors, event store, personal baseline engine, sequence engine, multimodal fusion engine, risk engine, counterfactual engine, and evidence graph engine.
 
 ---
 
-## 4. Local Development Quickstart
+## 4. Quickstart & Verification
 
 ```bash
 # 1. Install dependencies
 npm install
 
-# 2. Start the development server
-npm run dev
+# 2. Run automated verification suite (18/18 tests pass)
+npm test
 
-# 3. Open in browser
-http://localhost:3000
+# 3. Start local development server
+npm run dev
+# Server runs at http://localhost:3000
+
+# 4. Production build validation
+npm run build
 ```
 
 ---
 
-## 5. Live Demo for Evaluators & Judges
+## 5. Hackathon Demonstration Flow (2 Minutes)
 
-To evaluate the system without webcam setup:
-1. Navigate directly to `/demo` or click **"Live Demo"** in the top navigation bar.
-2. Click **"Launch Judge Demo (Quick Run)"** to execute Scenario 4 (Multiple-Person Signal).
-3. Observe how individual signals correlate into an elevated review priority, view the chronological score graph, and inspect the Gemini AI explanation.
-4. Click **"Verification Suites (22/22)"** in the top navigation to run the automated test suite directly in the browser.
+To demonstrate Behavior-X V2 to judges:
+
+1. **Landing Page (`/`):** View the monochrome Apple/Linear design system, product positioning ("Don't watch the student. Understand the evidence"), and the 6-stage telemetry pipeline diagram.
+2. **Launch Demo (`/demo`):** Click **"Launch Demo"** or navigate to `/demo`.
+3. **Select Scenario 5 (Complex Multimodal & AI-Era Sequence):** Click **"Play Scenario"** or step through with **"Next Step"**.
+4. **Watch Live Graph Construction:** Notice how window blur + clipboard paste + typing speed burst + rapid question answer combine into an **AI-Era Integrity Signal**.
+5. **Inspect the Three Core Scores:** Observe Review Priority rising while Evidence Quality remains high and Observation Quality confirms camera health.
+6. **Examiner Console (`/examiner`):** View the live roster, filter by High Review Priority, and click **"Investigate Dossier"**.
+7. **Interactive Evidence Graph & Counterfactuals:** Click graph nodes to inspect causal links, and review the Counterfactual Engine showing exact score impact when signals are removed.
+8. **Behavioral Session Replay:** Scrub the timeline to replay the candidate's exact interaction sequence.
+9. **Human Review Decision:** Select **"Confirm Evidence"** or **"Dismiss"**, add reviewer rationale, and export the official structured JSON telemetry record (0ms video stored).
 
 ---
 
-## 6. Privacy Principles Summary
+## 6. Privacy & Legal Compliance
 
-- **Zero Raw Video Storage (0ms):** Enforced by architecture.
-- **No Facial Recognition:** No face identity embeddings or demographic profiling.
-- **Session-Limited Event Storage:** Telemetry automatically purged after academic appeal periods.
-- **Human-In-The-Loop:** The certified academic examiner remains the sole decision maker.
+- **Zero Stored Video (0ms):** Optical frames are processed in volatile RAM buffers and purged in <300ms.
+- **Zero Facial Biometrics:** No facial templates or demographic traits are ever inferred or saved.
+- **Honest Capability Boundaries:** Browser sandbox limitations (e.g. no access to OS process trees) are openly disclosed in the [Known Limitations](KNOWN_LIMITATIONS.md) charter.

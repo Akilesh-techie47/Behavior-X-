@@ -5,7 +5,11 @@ export type EventCategory =
   | 'attention'
   | 'visibility'
   | 'system'
-  | 'aggregated';
+  | 'aggregated'
+  | 'interaction'
+  | 'question'
+  | 'fusion'
+  | 'security';
 
 export type EventType =
   | 'FACE_PRESENT'
@@ -24,11 +28,40 @@ export type EventType =
   | 'MULTIPLE_PERSONS'
   | 'ATTENTION_DEVIATION'
   | 'OFF_SCREEN_GAZE'
-  | 'TAB_SWITCH';
+  | 'TAB_SWITCH'
+  | 'AUDIO_ANOMALY'
+  | 'SUSPICIOUS_POSTURE'
+  // V2 Interaction Signals
+  | 'KEYSTROKE_BURST'
+  | 'TYPING_SPEED_CHANGE'
+  | 'TYPING_PAUSE_ANOMALY'
+  | 'SHORTCUT_TRIGGERED'
+  | 'MOUSE_VELOCITY_SPIKE'
+  | 'MOUSE_HESITATION'
+  | 'CURSOR_IDLE_ANOMALY'
+  | 'CLIPBOARD_COPY'
+  | 'CLIPBOARD_PASTE'
+  | 'CLIPBOARD_CUT'
+  // V2 Question-Level Signals
+  | 'QUESTION_RAPID_ANSWER'
+  | 'QUESTION_REPEATED_SWITCH'
+  | 'QUESTION_RESPONSE_TIME_ANOMALY'
+  // V2 Fusion & AI-Era Integrity Signals
+  | 'AI_ERA_INTERACTION_PATTERN'
+  | 'EXTERNAL_ASSISTANCE_SEQUENCE'
+  | 'DEVTOOLS_SUSPECTED'
+  | 'CAMERA_OCCLUSION'
+  | 'LIGHTING_DEGRADED'
+  | 'ENVIRONMENTAL_ANOMALY';
 
 export type RiskLevel = 'NORMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'REVIEW' | 'nominal' | 'elevated' | 'high';
 
-export type ReviewStatus = 'UNREVIEWED' | 'MARK_FOR_REVIEW' | 'REVIEWED' | 'NEEDS_FOLLOW_UP';
+export type EvidenceQualityLevel = 'POOR' | 'MODERATE' | 'GOOD' | 'EXCELLENT';
+export type ObservationQualityLevel = 'DEGRADED' | 'ACCEPTABLE' | 'OPTIMAL';
+
+export type ReviewStatus = 'UNREVIEWED' | 'MARK_FOR_REVIEW' | 'REVIEWED' | 'NEEDS_FOLLOW_UP' | 'CONFIRMED' | 'DISMISSED' | 'UNCERTAIN';
+
+export type MonitoringProfile = 'STANDARD' | 'BEHAVIORAL' | 'ENHANCED';
 
 export interface ObservableSignals {
   faceCount?: number;
@@ -42,6 +75,17 @@ export interface ObservableSignals {
   repeatedCount?: number;
   audioPeakDb?: number;
   additionalContext?: string;
+  // Interaction Telemetry
+  typingSpeedKps?: number;
+  keystrokeCount?: number;
+  clipboardLength?: number;
+  clipboardTextSnippet?: string;
+  mouseSpeedPxSec?: number;
+  mouseAcceleration?: number;
+  questionResponseSec?: number;
+  expectedResponseSec?: number;
+  baselineDeviationPct?: number;
+  lightingScore?: number;
 }
 
 export interface BehaviorEvent {
@@ -52,9 +96,22 @@ export interface BehaviorEvent {
   category: EventCategory;
   severity: EventSeverity;
   confidence: number; // 0.0 - 1.0
-  duration: number; // in milliseconds or seconds (durationSeconds compatibility)
+  duration: number; // in milliseconds
   durationSeconds?: number;
-  source: 'face_detector' | 'visibility_detector' | 'fullscreen_detector' | 'attention_detector' | 'camera_lifecycle' | 'event_aggregator' | 'demo_mode';
+  source:
+    | 'face_detector'
+    | 'visibility_detector'
+    | 'fullscreen_detector'
+    | 'attention_detector'
+    | 'camera_lifecycle'
+    | 'event_aggregator'
+    | 'demo_mode'
+    | 'keystroke_detector'
+    | 'mouse_detector'
+    | 'question_engine'
+    | 'fusion_engine'
+    | 'temporal_engine'
+    | 'security_checker';
   description: string;
   evidence: ObservableSignals;
   metadata?: Record<string, unknown>;
@@ -80,11 +137,31 @@ export interface Question {
   id: string;
   number: number;
   section: string;
+  category?: string;
   prompt: string;
   codeSnippet?: string;
   options: QuestionOption[];
   correctOptionId?: string;
   points: number;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  expectedResponseTimeSeconds?: number;
+}
+
+export interface QuestionAttempt {
+  questionId: string;
+  questionNumber: number;
+  openedAt: number;
+  firstInteractionAt: number | null;
+  submittedAt: number | null;
+  responseDurationMs: number;
+  answerChanges: number;
+  difficulty: 'easy' | 'medium' | 'hard';
+  expectedDurationSeconds: number;
+  selectedOptionId: string | null;
+  isFlagged: boolean;
+  anomalyScore: number; // 0-100
+  signals: string[];
+  isRapidAnswer: boolean;
 }
 
 export type SessionStatus = 'not_started' | 'active' | 'in_review' | 'submitted' | 'terminated';
@@ -105,25 +182,205 @@ export interface RiskTimelinePoint {
   level: 'NORMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'REVIEW';
   activeEventCount: number;
   primarySignal: string;
+  evidenceQuality?: number; // 0-100
+  observationQuality?: number; // 0-100
 }
 
+export interface RiskBreakdown {
+  attentionDeviationScore: number;
+  presenceScore: number;
+  environmentScore: number;
+  interactionScore?: number;
+  questionTimingScore?: number;
+  temporalSequenceScore?: number;
+}
+
+// ==========================================
+// V2 THREE CORE SCORES & RISK STATE
+// ==========================================
 export interface RiskState {
-  currentScore: number; // 0 to 100
+  currentScore: number; // 0 to 100 (Integrity Review Priority)
   level: 'NORMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'REVIEW';
-  confidence: number; // 0.0 to 1.0
-  timeWindowSeconds: number; // e.g. 30s
-  eventCountInWindow: number;
-  humanReadableExplanation: string;
-  topContributingFactors: RiskFactor[];
-  contributingSignalSummary: string[];
-  breakdown: {
-    attentionDeviationScore: number;
-    presenceScore: number;
-    environmentScore: number;
-  };
+  confidence?: number; // 0.0 to 1.0
+
+  // 1. INTEGRITY REVIEW PRIORITY
+  reviewPriorityScore?: number; // 0-100
+  reviewPriorityLevel?: 'NORMAL' | 'LOW' | 'MEDIUM' | 'HIGH' | 'REVIEW';
+
+  // 2. EVIDENCE QUALITY
+  evidenceQualityScore?: number; // 0-100
+  evidenceQualityLevel?: EvidenceQualityLevel;
+
+  // 3. SYSTEM OBSERVATION QUALITY
+  observationQualityScore?: number; // 0-100
+  observationQualityLevel?: ObservationQualityLevel;
+
+  timeWindowSeconds?: number; // e.g. 30s
+  eventCountInWindow?: number;
+  humanReadableExplanation?: string;
+  topContributingFactors?: RiskFactor[];
+  contributingSignalSummary?: string[];
+  breakdown: RiskBreakdown;
   timeline?: RiskTimelinePoint[];
   primaryContributingFactor?: string; // backwards compatibility
   lastCalculatedAt: number;
+}
+
+// ==========================================
+// V2 EVIDENCE GRAPH MODELS
+// ==========================================
+export type EvidenceNodeType =
+  | 'EVENT'
+  | 'SIGNAL'
+  | 'QUESTION'
+  | 'TEMPORAL_LINK'
+  | 'RISK_CONTRIBUTION'
+  | 'BASELINE_DEVIATION';
+
+export interface EvidenceNode {
+  id: string;
+  label: string;
+  type: EvidenceNodeType;
+  timestamp: number;
+  confidence: number;
+  weight: number;
+  details: string;
+  category?: EventCategory;
+  relatedQuestionNumber?: number;
+  isTrigger?: boolean;
+}
+
+export type EvidenceRelationshipType =
+  | 'CAUSED_BY'
+  | 'TEMPORAL_PROXIMITY'
+  | 'SYNERGY'
+  | 'EVIDENCE_FOR'
+  | 'CONCURRENT';
+
+export interface EvidenceRelationship {
+  id: string;
+  source: string; // source node id
+  target: string; // target node id
+  relationshipType: EvidenceRelationshipType;
+  strength: number; // 0.0 to 1.0
+  label: string;
+}
+
+export interface EvidenceContribution {
+  name: string;
+  rawPoints: number;
+  decayedPoints: number;
+  percentageOfTotal: number;
+  category: EventCategory;
+  description: string;
+}
+
+export interface EvidenceGraphData {
+  nodes: EvidenceNode[];
+  relationships: EvidenceRelationship[];
+  contributions: EvidenceContribution[];
+  summary: string;
+}
+
+// ==========================================
+// V2 COUNTERFACTUAL EXPLANATION
+// ==========================================
+export interface CounterfactualScenario {
+  signalId: string;
+  label: string;
+  originalScore: number;
+  scoreWithoutSignal: number;
+  delta: number;
+  explanation: string;
+}
+
+// ==========================================
+// V2 PERSONAL SESSION BASELINE
+// ==========================================
+export interface SessionBaseline {
+  establishedAt: number | null;
+  sampleCount: number;
+  baselineTypingSpeedKps: number;
+  baselinePauseDurationSec: number;
+  baselineQuestionResponseSec: number;
+  baselineGazeDeviationRate: number; // per minute
+  baselineMouseVelocity: number;
+  isEstablished: boolean;
+}
+
+// ==========================================
+// V2 INTERACTION & KEYBOARD/MOUSE TELEMETRY
+// ==========================================
+export interface KeystrokeMetrics {
+  currentSpeedKps: number;
+  avgDwellTimeMs: number;
+  avgIntervalMs: number;
+  pauseCount: number;
+  shortcutCount: number;
+  suddenShiftRatio: number;
+  lastKeystrokeTime: number;
+}
+
+export interface MouseMetrics {
+  totalDistancePx: number;
+  currentVelocityPxSec: number;
+  maxAcceleration: number;
+  clickCount: number;
+  hesitationCount: number;
+  idleDurationMs: number;
+  lastMoveTime: number;
+}
+
+// ==========================================
+// V2 BROWSER CAPABILITY & SECURITY
+// ==========================================
+export type BrowserCapabilityStatus =
+  | 'SUPPORTED'
+  | 'PARTIAL'
+  | 'NOT AVAILABLE IN BROWSER'
+  | 'SIMULATION ONLY';
+
+export interface BrowserCapability {
+  id: string;
+  name: string;
+  status: BrowserCapabilityStatus;
+  notes: string;
+  verifiedInEnvironment: boolean;
+}
+
+export interface BrowserIntegrityReport {
+  capabilities: BrowserCapability[];
+  isTampered: boolean;
+  tamperSignals: string[];
+  devToolsLikelyOpen: boolean;
+  checkedAt: number;
+}
+
+// ==========================================
+// V2 HUMAN-IN-THE-LOOP AUDIT
+// ==========================================
+export interface ReviewDecision {
+  id: string;
+  sessionId: string;
+  eventId?: string;
+  decision: 'CONFIRMED' | 'DISMISSED' | 'UNCERTAIN' | 'MARK_FOR_REVIEW';
+  examinerId: string;
+  examinerName: string;
+  note: string;
+  timestamp: number;
+}
+
+// ==========================================
+// V2 SYSTEM QUALITY & FAIRNESS
+// ==========================================
+export interface SystemQualitySnapshot {
+  detectionQualityScore: number; // 0-100
+  cameraQualityScore: number; // 0-100
+  environmentScore: number; // 0-100
+  browserCompatibilityScore: number; // 0-100
+  falsePositiveSuppressionRate: number; // 0-100
+  overallSystemHealthScore: number; // 0-100
+  timestamp: number;
 }
 
 export interface PrivacyState {
@@ -131,6 +388,7 @@ export interface PrivacyState {
   rawVideoStorage: 'disabled_enforced';
   biometricIdentification: 'disabled_no_embeddings';
   eventStorage: 'session_limited_telemetry';
+  monitoringProfile?: MonitoringProfile;
   retentionPolicy: {
     rawVideo: 'never_stored_0ms';
     behaviorEvents: 'session_limited_auto_purge';
@@ -147,6 +405,8 @@ export interface CameraState {
   errorMessage?: string;
   deviceId?: string;
   mode?: 'real' | 'demo';
+  lightingLevel?: 'poor' | 'fair' | 'good';
+  videoResolution?: { width: number; height: number };
 }
 
 export interface SystemStatus {
@@ -156,16 +416,20 @@ export interface SystemStatus {
   privacyMode: 'strict_edge_only';
   browserSupported: boolean;
   engineMode: 'real' | 'demo';
+  monitoringProfile?: MonitoringProfile;
 }
 
 export interface ExamSettings {
   examTitle: string;
   courseCode: string;
+  courseName?: string;
   totalDurationMinutes: number;
   allowReviewAfterSubmission: boolean;
   edgeVisionSamplingHz: number;
   strictGazeThresholdSeconds: number;
   requireFullscreen: boolean;
+  monitoringProfile?: MonitoringProfile;
+  allowedBrowserBehavior?: string[];
 }
 
 export interface ExamSession {
@@ -181,8 +445,13 @@ export interface ExamSession {
   currentQuestionIndex: number;
   answers: Record<string, string>;
   flaggedQuestionIds: string[];
+  questionAttempts?: Record<string, QuestionAttempt>;
   riskState: RiskState;
   events: BehaviorEvent[];
+  baseline?: SessionBaseline;
+  evidenceGraph?: EvidenceGraphData;
+  counterfactuals?: CounterfactualScenario[];
+  reviewDecisions?: ReviewDecision[];
   privacyState?: PrivacyState;
   notes?: string;
 }
