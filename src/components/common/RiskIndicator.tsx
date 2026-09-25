@@ -20,60 +20,50 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
 }) => {
   const normalizedLevel = String(level).toUpperCase();
 
-  const getMonochromeConfig = () => {
+  const getConfig = () => {
     switch (normalizedLevel) {
       case 'REVIEW':
         return {
-          stroke: '#000000',
-          darkStroke: '#FFFFFF',
-          text: 'text-black dark:text-white font-extrabold',
-          density: '████████████',
-          label: 'Priority Review Required',
-          badgeText: 'REVIEW',
+          ring: 'text-brand-700',
+          track: 'text-slate-200',
+          label: 'Priority review required',
+          text: 'text-brand-800 font-semibold',
         };
       case 'HIGH':
         return {
-          stroke: '#1F1F1F',
-          darkStroke: '#E5E5E5',
-          text: 'text-neutral-900 dark:text-neutral-100 font-bold',
-          density: '████████',
-          label: 'High Priority',
-          badgeText: 'HIGH',
+          ring: 'text-rose-600',
+          track: 'text-slate-200',
+          label: 'High priority',
+          text: 'text-rose-700 font-semibold',
         };
       case 'MEDIUM':
       case 'ELEVATED':
         return {
-          stroke: '#525252',
-          darkStroke: '#A3A3A3',
-          text: 'text-neutral-800 dark:text-neutral-200 font-semibold',
-          density: '█████',
-          label: 'Medium Anomaly',
-          badgeText: 'MEDIUM',
+          ring: 'text-amber-500',
+          track: 'text-slate-200',
+          label: 'Medium anomaly',
+          text: 'text-amber-700 font-semibold',
         };
       case 'LOW':
         return {
-          stroke: '#737373',
-          darkStroke: '#737373',
-          text: 'text-neutral-700 dark:text-neutral-300 font-medium',
-          density: '███',
-          label: 'Low Deviation',
-          badgeText: 'LOW',
+          ring: 'text-slate-500',
+          track: 'text-slate-200',
+          label: 'Low deviation',
+          text: 'text-slate-700 font-medium',
         };
       case 'NORMAL':
       case 'NOMINAL':
       default:
         return {
-          stroke: '#A3A3A3',
-          darkStroke: '#525252',
-          text: 'text-neutral-600 dark:text-neutral-400 font-medium',
-          density: '█',
-          label: 'Normal Baseline',
-          badgeText: 'NORMAL',
+          ring: 'text-emerald-600',
+          track: 'text-slate-200',
+          label: 'Normal baseline',
+          text: 'text-emerald-700 font-medium',
         };
     }
   };
 
-  const config = getMonochromeConfig();
+  const config = getConfig();
 
   const radius = size === 'sm' ? 22 : size === 'md' ? 34 : 46;
   const strokeWidth = size === 'sm' ? 3.5 : size === 'md' ? 5 : 7;
@@ -88,18 +78,19 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
           width={svgSize}
           height={svgSize}
           className="transform -rotate-90 origin-center"
+          aria-hidden="true"
         >
-          {/* Background circle */}
+          {/* Track */}
           <circle
             cx={svgSize / 2}
             cy={svgSize / 2}
             r={radius}
             stroke="currentColor"
             strokeWidth={strokeWidth}
-            className="text-neutral-200 dark:text-neutral-800"
+            className={config.track}
             fill="transparent"
           />
-          {/* Value circle in monochrome stroke */}
+          {/* Value */}
           <circle
             cx={svgSize / 2}
             cy={svgSize / 2}
@@ -110,27 +101,27 @@ export const RiskIndicator: React.FC<RiskIndicatorProps> = ({
             strokeDashoffset={strokeDashoffset}
             strokeLinecap="round"
             fill="transparent"
-            className="text-neutral-900 dark:text-neutral-100 transition-all duration-700 ease-out"
+            className={`${config.ring} transition-[stroke-dashoffset] duration-500 ease-out`}
           />
         </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center font-mono font-bold">
-          <span className={`text-neutral-900 dark:text-white ${size === 'sm' ? 'text-xs' : size === 'md' ? 'text-base' : 'text-2xl'}`}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span
+            className={`data font-semibold text-slate-900 ${
+              size === 'sm' ? 'text-xs' : size === 'md' ? 'text-base' : 'text-2xl'
+            }`}
+          >
             {score}
           </span>
-          {size !== 'sm' && <span className="text-[9px] text-neutral-400 font-normal tracking-widest">PTS</span>}
         </div>
       </div>
 
       {showDetails && (
         <div className="min-w-0">
-          <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400">
-            {labelOverride || 'Review Priority Index'}
+          <div className="eyebrow">{labelOverride || 'Review Priority Index'}</div>
+          <div className={`text-sm tracking-[-0.01em] mt-1 ${config.text}`}>
+            {config.label}
           </div>
-          <div className={`text-sm tracking-tight ${config.text} mt-0.5 flex items-center gap-2`}>
-            <span>{config.label}</span>
-            <span className="font-mono text-[10px] text-neutral-400 select-none">{config.density}</span>
-          </div>
-          <p className="text-[11px] text-neutral-500 mt-0.5 leading-snug">
+          <p className="text-[12px] text-slate-500 mt-1 leading-snug">
             Evidence priority metric for examiner inspection (not an automated accusation).
           </p>
         </div>

@@ -19,10 +19,10 @@ export const EmptyState: React.FC<StateFeedbackProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-8 text-center border border-dashed border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 font-mono ${className}`}>
-      {icon && <div className="p-3 bg-white dark:bg-neutral-850 border border-neutral-300 dark:border-neutral-700 mb-3 text-neutral-500">{icon}</div>}
-      <h4 className="text-xs uppercase font-bold text-neutral-900 dark:text-neutral-100">{title}</h4>
-      {description && <p className="text-[11px] text-neutral-500 mt-1 max-w-sm">{description}</p>}
+    <div className={`flex flex-col items-center justify-center p-8 text-center ${className}`}>
+      {icon && <div className="mb-3 text-slate-400">{icon}</div>}
+      <h4 className="text-sm font-medium text-slate-800">{title}</h4>
+      {description && <p className="text-[13px] text-slate-500 mt-1.5 max-w-sm leading-relaxed">{description}</p>}
       {actionText && onAction && (
         <Button variant="outline" size="sm" className="mt-4" onClick={onAction}>
           {actionText}
@@ -37,10 +37,10 @@ export const LoadingState: React.FC<{ message?: string; className?: string }> = 
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-12 text-center font-mono ${className}`}>
-      <div className="w-8 h-8 border-2 border-neutral-950 dark:border-neutral-100 border-t-transparent animate-spin mb-4" />
-      <h4 className="text-xs uppercase font-bold text-neutral-900 dark:text-neutral-100">{message}</h4>
-      <p className="text-[10px] text-neutral-500 mt-1">Transient client-side initialization</p>
+    <div className={`flex flex-col items-center justify-center p-12 text-center ${className}`}>
+      <div className="w-6 h-6 border-2 border-slate-300 border-t-brand-700 rounded-full animate-spin mb-4" />
+      <h4 className="text-sm font-medium text-slate-800">{message}</h4>
+      <p className="text-[12px] text-slate-500 mt-1">Transient client-side initialization</p>
     </div>
   );
 };
@@ -54,10 +54,10 @@ export const ErrorState: React.FC<StateFeedbackProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`flex flex-col items-center justify-center p-8 text-center border border-neutral-950 dark:border-neutral-100 bg-neutral-100 dark:bg-neutral-900 font-mono ${className}`}>
-      {icon && <div className="p-3 bg-white dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-700 mb-3 text-neutral-900 dark:text-neutral-100">{icon}</div>}
-      <h4 className="text-xs uppercase font-bold text-neutral-950 dark:text-neutral-50">{title}</h4>
-      {description && <p className="text-[11px] text-neutral-600 dark:text-neutral-400 mt-1 max-w-sm">{description}</p>}
+    <div className={`flex flex-col items-center justify-center p-8 text-center ${className}`}>
+      {icon && <div className="mb-3 text-rose-500">{icon}</div>}
+      <h4 className="text-sm font-medium text-slate-900">{title}</h4>
+      {description && <p className="text-[13px] text-slate-600 mt-1.5 max-w-sm leading-relaxed">{description}</p>}
       {onAction && (
         <Button variant="primary" size="sm" className="mt-4" onClick={onAction}>
           {actionText}

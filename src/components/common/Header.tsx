@@ -26,13 +26,22 @@ interface HeaderProps {
   onNavigate: (path: string) => void;
 }
 
+const TEST_TABS = [
+  { id: 'ai', label: 'AI layer', icon: Bot },
+  { id: 'privacy', label: 'Privacy', icon: Shield },
+  { id: 'risk', label: 'Risk engine', icon: Activity },
+  { id: 'signals', label: 'Signal logic', icon: Clock },
+] as const;
+
+type TestTabId = (typeof TEST_TABS)[number]['id'];
+
 export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
   const [signalTests, setSignalTests] = useState<TestResult[] | null>(null);
   const [riskTests, setRiskTests] = useState<RiskTestResult[] | null>(null);
   const [privacyTests, setPrivacyTests] = useState<PrivacyTestResult[] | null>(null);
   const [aiTests, setAiTests] = useState<AITestResult[] | null>(null);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'ai' | 'privacy' | 'risk' | 'signals'>('ai');
+  const [activeTab, setActiveTab] = useState<TestTabId>('ai');
 
   const handleRunAllTests = async () => {
     setSignalTests(runEngineTests());
@@ -43,43 +52,59 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
     setIsTestModalOpen(true);
   };
 
+  const tabCounts: Record<TestTabId, number> = {
+    ai: aiTests?.length || 5,
+    privacy: privacyTests?.length || 6,
+    risk: riskTests?.length || 6,
+    signals: signalTests?.length || 6,
+  };
+
+  const activeResults: Array<{ name: string; passed: boolean; message: string; durationMs: number }> =
+    activeTab === 'ai'
+      ? (aiTests || [])
+      : activeTab === 'privacy'
+      ? (privacyTests || [])
+      : activeTab === 'risk'
+      ? (riskTests || [])
+      : (signalTests || []);
+
   const navItems = [
     { label: 'Overview', path: '/' },
-    { label: 'Live Demo', path: '/demo', icon: <Sparkles className="w-3.5 h-3.5" /> },
-    { label: 'Candidate Portal', path: '/student', icon: <BookOpen className="w-3.5 h-3.5" /> },
-    { label: 'Exam Workspace', path: '/exam', icon: <MonitorCheck className="w-3.5 h-3.5" /> },
-    { label: 'Examiner Center', path: '/examiner', icon: <Layers className="w-3.5 h-3.5" /> },
-    { label: 'Privacy Charter', path: '/privacy', icon: <Lock className="w-3.5 h-3.5" /> },
+    { label: 'Live demo', path: '/demo', icon: <Sparkles className="w-3.5 h-3.5" /> },
+    { label: 'Candidate portal', path: '/student', icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { label: 'Exam workspace', path: '/exam', icon: <MonitorCheck className="w-3.5 h-3.5" /> },
+    { label: 'Examiner center', path: '/examiner', icon: <Layers className="w-3.5 h-3.5" /> },
+    { label: 'Privacy charter', path: '/privacy', icon: <Lock className="w-3.5 h-3.5" /> },
   ];
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-neutral-200 dark:border-neutral-850 bg-white/95 dark:bg-black/95 backdrop-blur-md shadow-2xs">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         {/* Brand */}
-        <div
+        <button
           onClick={() => onNavigate('/')}
-          className="flex items-center gap-3 cursor-pointer group select-none"
+          className="flex items-center gap-2.5 text-left group select-none"
         >
-          <div className="w-8 h-8 rounded-md bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-mono font-bold text-sm tracking-tight border border-neutral-800 dark:border-neutral-200">
+          <div className="w-8 h-8 rounded-md bg-brand-900 text-white grid place-items-center text-[13px] font-semibold tracking-[-0.02em] shrink-0">
             BX
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-black dark:text-white text-base tracking-tight font-mono">
-                BEHAVIOR-X
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-slate-900 text-[15px] tracking-[-0.01em]">
+                Behavior-X
               </span>
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-900 text-neutral-800 dark:text-neutral-200 border border-neutral-300 dark:border-neutral-700">
-                V2
+              <span className="text-[10px] font-medium px-1 py-px rounded-[3px] border border-slate-200 bg-slate-50 text-slate-500">
+                v2
               </span>
             </div>
-            <p className="text-[11px] text-neutral-500 font-normal tracking-tight hidden sm:block">
-              Multimodal Examination Intelligence Platform
+            <p className="text-[11px] text-slate-500 leading-tight hidden 2xl:block">
+              Multimodal examination intelligence platform
             </p>
           </div>
-        </div>
+        </button>
 
         {/* Navigation items */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-0.5" aria-label="Primary">
           {navItems.map(item => {
             const isActive =
               currentPath === item.path ||
@@ -88,29 +113,30 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
               <button
                 key={item.path}
                 onClick={() => onNavigate(item.path)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                title={item.label}
+                aria-current={isActive ? 'page' : undefined}
+                className={`inline-flex items-center h-8 px-2.5 gap-1.5 rounded-md text-[13px] transition-colors ${
                   isActive
-                    ? 'bg-black text-white dark:bg-white dark:text-black font-semibold shadow-2xs'
-                    : 'text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-neutral-900'
+                    ? 'bg-brand-50 text-brand-800 font-semibold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                 }`}
               >
                 {item.icon}
-                <span>{item.label}</span>
+                <span className="hidden xl:inline">{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Engine Test Suite & Privacy Indicator Badge */}
-        <div className="flex items-center gap-2.5">
+        {/* Engine Test Suite & Privacy Indicator */}
+        <div className="flex items-center gap-2">
           <button
             onClick={handleRunAllTests}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors shadow-2xs"
+            className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-md border border-slate-300 bg-white text-[13px] font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors"
             title="Run Behavior-X verification tests (AI Layer, Privacy, Signal Engine & Risk Engine)"
           >
-            <PlayCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Verification (23 Tests)</span>
-            <span className="sm:hidden">Tests</span>
+            <PlayCircle className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden 2xl:inline">Verification (23 tests)</span>
           </button>
           <PrivacyBadge />
         </div>
@@ -120,14 +146,14 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
       <Modal
         isOpen={isTestModalOpen}
         onClose={() => setIsTestModalOpen(false)}
-        title="Behavior-X System Verification Suites"
-        subtitle="Automated unit test runs validating Zero-Video Ingestion, Risk Scoring, and AI Prompt Sanitization"
+        title="Behavior-X system verification suites"
+        subtitle="Automated unit runs validating zero-video ingestion, risk scoring, and AI prompt sanitization"
         maxWidth="lg"
         footer={
-          <div className="flex items-center justify-between w-full">
-            <span className="text-xs font-semibold text-neutral-800 dark:text-neutral-200 flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-black dark:text-white" />
-              <span>All 23 Verification Suites Executed Successfully</span>
+          <div className="flex items-center justify-between w-full gap-4">
+            <span className="text-[13px] text-slate-600 flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>All 23 verification suites executed successfully</span>
             </span>
             <Button variant="primary" size="sm" onClick={() => setIsTestModalOpen(false)}>
               Close
@@ -137,130 +163,63 @@ export const Header: React.FC<HeaderProps> = ({ currentPath, onNavigate }) => {
       >
         <div className="space-y-4">
           {/* Sub-tab selection */}
-          <div className="flex items-center gap-1 p-1 bg-neutral-100 dark:bg-neutral-900 rounded-md text-xs">
-            <button
-              onClick={() => setActiveTab('ai')}
-              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                activeTab === 'ai'
-                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
-              }`}
-            >
-              <Bot className="w-3.5 h-3.5" />
-              <span>AI Layer ({aiTests?.length || 5})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('privacy')}
-              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                activeTab === 'privacy'
-                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Privacy ({privacyTests?.length || 6})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('risk')}
-              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                activeTab === 'risk'
-                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
-              }`}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Risk Engine ({riskTests?.length || 6})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('signals')}
-              className={`flex-1 py-1.5 rounded font-medium transition-colors flex items-center justify-center gap-1.5 ${
-                activeTab === 'signals'
-                  ? 'bg-black text-white dark:bg-white dark:text-black font-semibold'
-                  : 'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
-              }`}
-            >
-              <Clock className="w-3.5 h-3.5" />
-              <span>Signal Logic ({signalTests?.length || 6})</span>
-            </button>
+          <div
+            className="flex items-center gap-1 p-1 bg-slate-100 rounded-md"
+            role="tablist"
+          >
+            {TEST_TABS.map(tab => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-1 inline-flex items-center justify-center gap-1.5 h-7 px-2 rounded-[4px] text-[12px] font-medium transition-colors ${
+                    isActive
+                      ? 'bg-white text-slate-900 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span className="truncate">
+                    {tab.label} ({tabCounts[tab.id]})
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Tab contents */}
-          <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-            {activeTab === 'ai' &&
-              aiTests?.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
-                >
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
-                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                      <span>{t.durationMs}ms</span>
+          <div className="space-y-1.5 max-h-72 overflow-y-auto pr-1 -mr-1">
+            {activeResults.map((t, idx) => (
+              <div
+                key={idx}
+                className="flex items-start gap-3 p-3 border border-slate-200 rounded-md bg-slate-50/60"
+              >
+                <span className="mt-0.5 shrink-0">
+                  {t.passed ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <XCircle className="w-4 h-4 text-rose-600" />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[13px] font-medium text-slate-900 truncate">
+                      {t.name}
+                    </span>
+                    <span className="data text-[11px] text-slate-400 shrink-0">
+                      {t.durationMs}ms
                     </span>
                   </div>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
+                  <p className="text-[12px] text-slate-600 mt-0.5 leading-relaxed">
                     {t.message}
                   </p>
                 </div>
-              ))}
-
-            {activeTab === 'privacy' &&
-              privacyTests?.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
-                >
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
-                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                      <span>{t.durationMs}ms</span>
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
-                    {t.message}
-                  </p>
-                </div>
-              ))}
-
-            {activeTab === 'risk' &&
-              riskTests?.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
-                >
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
-                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                      <span>{t.durationMs}ms</span>
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
-                    {t.message}
-                  </p>
-                </div>
-              ))}
-
-            {activeTab === 'signals' &&
-              signalTests?.map((t, idx) => (
-                <div
-                  key={idx}
-                  className="p-3 bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-md text-xs space-y-1"
-                >
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className="text-neutral-900 dark:text-white">{t.name}</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-mono text-neutral-800 dark:text-neutral-200">
-                      {t.passed ? <CheckCircle2 className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}
-                      <span>{t.durationMs}ms</span>
-                    </span>
-                  </div>
-                  <p className="text-neutral-600 dark:text-neutral-400 text-[11px] leading-relaxed">
-                    {t.message}
-                  </p>
-                </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       </Modal>

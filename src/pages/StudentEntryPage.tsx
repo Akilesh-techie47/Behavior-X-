@@ -5,16 +5,11 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
-  User,
-  BookOpen,
+  Clock,
   ArrowRight,
   Maximize2,
   Globe,
   Cpu,
-  HelpCircle,
-  Clock,
-  FileQuestion,
-  AlertTriangle,
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { Card } from '../components/common/Card';
@@ -99,228 +94,240 @@ export const StudentEntryPage: React.FC<{ onNavigate: (path: string) => void }> 
     switch (status) {
       case 'passed':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono text-neutral-900 dark:text-neutral-100 font-bold">
-            <CheckCircle2 className="w-4 h-4 text-neutral-900 dark:text-neutral-100" />
-            <span>{label || 'READY'}</span>
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-emerald-700">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>{label || 'Ready'}</span>
           </span>
         );
       case 'failed':
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono text-neutral-600 dark:text-neutral-400 font-bold">
-            <XCircle className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
-            <span>{label || 'ATTENTION REQUIRED'}</span>
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-rose-700">
+            <XCircle className="w-4 h-4" />
+            <span>{label || 'Attention required'}</span>
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1.5 text-xs font-mono text-neutral-500">
+          <span className="inline-flex items-center gap-1.5 text-[12.5px] text-slate-500">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            <span>VALIDATING...</span>
+            <span>Validating…</span>
           </span>
         );
     }
   };
 
+  const candidateFields = [
+    {
+      label: 'Candidate name',
+      primary: session.student.name,
+      secondary: session.student.email,
+    },
+    {
+      label: 'Candidate identifier',
+      primary: session.student.studentId,
+      secondary: 'Department of Computer Science',
+      mono: true,
+    },
+    {
+      label: 'Examination module',
+      primary: session.settings.courseName || session.settings.examTitle,
+      secondary: `Code: ${session.settings.courseCode}`,
+    },
+    {
+      label: 'Allotted time & items',
+      primary: `${session.settings.totalDurationMinutes} minutes total`,
+      secondary: `${questions.length} structured items`,
+      icon: <Clock className="w-3.5 h-3.5 text-slate-400" />,
+    },
+  ];
+
+  const checkRows = [
+    {
+      icon: <Camera className="w-4 h-4" />,
+      label: 'Optical sensor (webcam)',
+      status: renderCheckStatus(
+        systemChecks.camera,
+        cameraState.hasPermission ? 'Active / stream initialized' : 'Awaiting permission'
+      ),
+    },
+    {
+      icon: <Globe className="w-4 h-4" />,
+      label: 'Browser environment',
+      status: renderCheckStatus(systemChecks.browser, 'Standards compliant'),
+    },
+    {
+      icon: <Maximize2 className="w-4 h-4" />,
+      label: 'Fullscreen protocol',
+      status: renderCheckStatus(systemChecks.fullscreen, 'Supported'),
+    },
+    {
+      icon: <Globe className="w-4 h-4" />,
+      label: 'Network telemetry',
+      status: renderCheckStatus(
+        systemChecks.network,
+        `Low latency (${systemStatus.networkLatencyMs}ms)`
+      ),
+    },
+    {
+      icon: <Cpu className="w-4 h-4" />,
+      label: 'Behavior-X core engine',
+      status: renderCheckStatus(systemChecks.behaviorEngine, 'Active (0 seconds retained)'),
+    },
+  ];
+
   return (
-    <div className="space-y-6 py-6 font-sans">
-      {/* 1. Header Banner */}
-      <div className="border-b border-neutral-300 dark:border-neutral-700 pb-5 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-neutral-500 mb-1">
-            <span>Candidate Verification</span>
-            <span>•</span>
-            <span>Phase 01 / 02</span>
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-950 dark:text-neutral-50 font-mono uppercase">
-            Examination Check-In & Device Calibration
+    <div className="py-8 space-y-6">
+      {/* 1. Page header */}
+      <div className="flex flex-wrap items-end justify-between gap-4 pb-6 border-b border-slate-200">
+        <div className="min-w-0">
+          <p className="eyebrow">Candidate verification · Phase 01 / 02</p>
+          <h1 className="mt-2 text-[24px] sm:text-[28px] font-semibold tracking-[-0.02em] text-slate-900">
+            Examination check-in &amp; device calibration
           </h1>
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-            Validate optical sensor, calibrate interaction baseline, and review privacy architecture prior to session initialization.
+          <p className="text-[13.5px] text-slate-600 mt-2 max-w-2xl leading-relaxed">
+            Validate optical sensor, calibrate interaction baseline, and review privacy
+            architecture prior to session initialization.
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-850 text-xs font-mono uppercase font-bold text-neutral-950 dark:text-neutral-50">
+        <div className="inline-flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50/70 px-3 py-2 text-[12.5px] font-medium text-emerald-800">
           <ShieldCheck className="w-4 h-4" />
-          <span>Zero Stored Video • In-Memory Only</span>
+          <span>Zero stored video · in-memory only</span>
         </div>
       </div>
 
-      {/* 2. Main Grid: Readiness & Privacy */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Student Details & System Check */}
+      {/* 2. Readiness & privacy */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-7 space-y-6">
-          {/* Candidate Profile Details */}
-          <Card title="Candidate & Examination Parameters" subtitle="Verify registered enrollment information">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
-              <div className="p-3.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-1">
-                <span className="text-neutral-500 text-[10px] uppercase">Candidate Name</span>
-                <div className="font-bold text-neutral-950 dark:text-neutral-50 text-sm">
-                  {session.student.name}
+          {/* Candidate details */}
+          <Card
+            title="Candidate &amp; examination parameters"
+            subtitle="Verify registered enrollment information"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {candidateFields.map(field => (
+                <div key={field.label} className="panel-inset bg-white px-4 py-3.5">
+                  <span className="eyebrow">{field.label}</span>
+                  <div className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-slate-900">
+                    {field.icon}
+                    <span className={field.mono ? 'data text-[13px]' : ''}>{field.primary}</span>
+                  </div>
+                  <p className="text-[12.5px] text-slate-500 mt-0.5">{field.secondary}</p>
                 </div>
-                <div className="text-neutral-500">{session.student.email}</div>
-              </div>
-
-              <div className="p-3.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-1">
-                <span className="text-neutral-500 text-[10px] uppercase">Candidate Identifier</span>
-                <div className="font-bold text-neutral-950 dark:text-neutral-50 text-sm">
-                  {session.student.studentId}
-                </div>
-                <div className="text-neutral-500">Department of Computer Science</div>
-              </div>
-
-              <div className="p-3.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-1">
-                <span className="text-neutral-500 text-[10px] uppercase">Examination Module</span>
-                <div className="font-bold text-neutral-950 dark:text-neutral-50 text-sm">
-                  {session.settings.courseName || session.settings.examTitle}
-                </div>
-                <div className="text-neutral-500">Code: {session.settings.courseCode}</div>
-              </div>
-
-              <div className="p-3.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-1">
-                <span className="text-neutral-500 text-[10px] uppercase">Allotted Time & Items</span>
-                <div className="font-bold text-neutral-950 dark:text-neutral-50 text-sm flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5" />
-                  <span>{session.settings.totalDurationMinutes} Minutes Total</span>
-                </div>
-                <div className="text-neutral-500">{questions.length} structured items</div>
-              </div>
+              ))}
             </div>
           </Card>
 
-          {/* System Readiness Checks */}
+          {/* System readiness */}
           <Card
-            title="Telemetry Environment Verification"
+            title="Telemetry environment verification"
             subtitle="Deterministic browser and sensor capability checks"
             badge={
-              <span className="text-[10px] font-mono uppercase text-neutral-500 border border-neutral-300 dark:border-neutral-700 px-2 py-0.5">
+              <span className="hidden sm:inline text-[12px] text-slate-500 whitespace-nowrap">
                 Automated
               </span>
             }
           >
-            <div className="divide-y divide-neutral-200 dark:divide-neutral-800 text-xs">
-              <div className="py-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-neutral-500" />
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">Optical Sensor (Webcam):</span>
-                </div>
-                <div>
-                  {renderCheckStatus(
-                    systemChecks.camera,
-                    cameraState.hasPermission ? 'ACTIVE / STREAM INITIALIZED' : 'AWAITING PERMISSION'
-                  )}
-                </div>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-neutral-500" />
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">Browser Environment:</span>
-                </div>
-                <div>{renderCheckStatus(systemChecks.browser, 'STANDARDS COMPLIANT')}</div>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Maximize2 className="w-4 h-4 text-neutral-500" />
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">Fullscreen Protocol:</span>
-                </div>
-                <div>{renderCheckStatus(systemChecks.fullscreen, 'SUPPORTED')}</div>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-neutral-500" />
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">Network Telemetry:</span>
-                </div>
-                <div>
-                  {renderCheckStatus(
-                    systemChecks.network,
-                    `LOW LATENCY (${systemStatus.networkLatencyMs}ms)`
-                  )}
-                </div>
-              </div>
-
-              <div className="py-2.5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Cpu className="w-4 h-4 text-neutral-500" />
-                  <span className="font-medium text-neutral-900 dark:text-neutral-100">
-                    Behavior-X Core Engine:
+            <ul className="divide-y divide-slate-100 -my-1">
+              {checkRows.map(row => (
+                <li
+                  key={row.label}
+                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3"
+                >
+                  <span className="inline-flex items-center gap-2.5 text-[13.5px] font-medium text-slate-800">
+                    <span className="text-slate-400">{row.icon}</span>
+                    {row.label}
                   </span>
-                </div>
-                <div>{renderCheckStatus(systemChecks.behaviorEngine, 'ACTIVE (0 SECONDS RETAINED)')}</div>
-              </div>
-            </div>
+                  {row.status}
+                </li>
+              ))}
+            </ul>
           </Card>
 
-          {/* PRIVACY CONSENT CHARTER */}
-          <div className="p-5 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 space-y-4">
+          {/* Privacy consent charter */}
+          <div className="panel p-5 sm:p-6 space-y-5">
             <div className="flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-neutral-950 dark:text-neutral-50 flex-shrink-0 mt-0.5" />
+              <ShieldCheck className="w-5 h-5 text-brand-700 flex-shrink-0 mt-0.5" />
               <div>
-                <h4 className="font-bold text-neutral-950 dark:text-neutral-50 text-sm font-mono uppercase">
-                  Candidate Behavioral Privacy Charter
-                </h4>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
+                <h3 className="text-[15px] font-semibold text-slate-900">
+                  Candidate behavioral privacy charter
+                </h3>
+                <p className="text-[12.5px] text-slate-500 mt-1">
                   Institutional examination integrity governance protocol:
                 </p>
               </div>
             </div>
 
-            <div className="space-y-2.5 text-xs text-neutral-700 dark:text-neutral-300 pl-8">
+            <div className="space-y-3.5 sm:pl-8">
               <div>
-                <strong className="text-neutral-950 dark:text-neutral-50 font-mono text-[11px] uppercase">• Observable Modalities:</strong>
-                <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">
-                  Prolonged gaze deviation off-screen, browser window focus shifts, and keystroke interval rhythm relative to candidate personal baseline.
+                <strong className="text-[13px] font-semibold text-slate-900">
+                  Observable modalities
+                </strong>
+                <p className="text-[13px] text-slate-600 mt-0.5 leading-relaxed">
+                  Prolonged gaze deviation off-screen, browser window focus shifts, and keystroke
+                  interval rhythm relative to candidate personal baseline.
                 </p>
               </div>
 
               <div>
-                <strong className="text-neutral-950 dark:text-neutral-50 font-mono text-[11px] uppercase">• Zero Persistent Imagery:</strong>
-                <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">
-                  Zero video files, zero photographs, and zero facial recognition biometric scans. All optical frames are processed in volatile RAM and purged within 0.3s.
+                <strong className="text-[13px] font-semibold text-slate-900">
+                  Zero persistent imagery
+                </strong>
+                <p className="text-[13px] text-slate-600 mt-0.5 leading-relaxed">
+                  Zero video files, zero photographs, and zero facial recognition biometric scans.
+                  All optical frames are processed in volatile RAM and purged within 0.3s.
                 </p>
               </div>
 
               <div>
-                <strong className="text-neutral-950 dark:text-neutral-50 font-mono text-[11px] uppercase">• Human Decision Authority:</strong>
-                <p className="text-neutral-600 dark:text-neutral-400 mt-0.5">
-                  No automated disqualification or penalty exists. Human examiners evaluate structured evidence graphs with full counterfactual traceability.
+                <strong className="text-[13px] font-semibold text-slate-900">
+                  Human decision authority
+                </strong>
+                <p className="text-[13px] text-slate-600 mt-0.5 leading-relaxed">
+                  No automated disqualification or penalty exists. Human examiners evaluate
+                  structured evidence graphs with full counterfactual traceability.
                 </p>
               </div>
 
-              <div className="p-3 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 font-mono text-[11px] text-neutral-800 dark:text-neutral-200">
-                Notice: Brief natural glances to scratchpad notes are normal and will not trigger review priority flags.
+              <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-[12.5px] text-slate-600">
+                Notice: Brief natural glances to scratchpad notes are normal and will not trigger
+                review priority flags.
               </div>
             </div>
 
-            {/* Consent Checkbox */}
-            <label className="flex items-start gap-3 pt-3 border-t border-neutral-200 dark:border-neutral-800 cursor-pointer select-none">
+            <label className="flex items-start gap-3 pt-4 border-t border-slate-200 cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={hasAgreedToPrivacy}
                 onChange={e => setHasAgreedToPrivacy(e.target.checked)}
-                className="w-4 h-4 mt-0.5 rounded-none border-neutral-400 accent-neutral-950 focus:ring-0"
+                className="mt-0.5 w-4 h-4 rounded-[3px]"
               />
-              <span className="text-xs font-mono font-medium text-neutral-900 dark:text-neutral-100">
-                I acknowledge the 0ms zero-storage privacy policy and understand that telemetry records are preserved solely as mathematical evidence for human review.
+              <span className="text-[13px] font-medium text-slate-800 leading-relaxed">
+                I acknowledge the 0ms zero-storage privacy policy and understand that telemetry
+                records are preserved solely as mathematical evidence for human review.
               </span>
             </label>
           </div>
         </div>
 
-        {/* Right Column: Camera Preview & Launch */}
-        <div className="lg:col-span-5 space-y-5">
+        {/* Camera & launch */}
+        <div className="lg:col-span-5">
           <Card
-            title="Sensor Positioning Check"
+            title="Sensor positioning check"
             subtitle="Verify frontal face visibility within frame bounds"
             badge={
-              isCameraReady ? (
-                <span className="text-xs font-mono font-bold text-neutral-950 dark:text-neutral-50">
-                  CAMERA ACTIVE
-                </span>
-              ) : (
-                <span className="text-xs font-mono text-neutral-500">STANDBY</span>
-              )
+              <span
+                className={`inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap ${
+                  isCameraReady ? 'text-emerald-700' : 'text-slate-500'
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isCameraReady ? 'bg-emerald-600' : 'bg-slate-300'
+                  }`}
+                />
+                {isCameraReady ? 'Camera active' : 'Standby'}
+              </span>
             }
           >
             <div className="space-y-4">
@@ -331,37 +338,39 @@ export const StudentEntryPage: React.FC<{ onNavigate: (path: string) => void }> 
               />
 
               {!isCameraReady && (
-                <Alert type="warning" title="Authorize Optical Sensor">
-                  Select 'Turn on Camera' above to initialize on-device face bounding. Video remains strictly local to your browser memory.
+                <Alert type="warning" title="Authorize optical sensor">
+                  Select 'Turn on Camera' above to initialize on-device face bounding. Video
+                  remains strictly local to your browser memory.
                 </Alert>
               )}
 
               {isCameraReady && (
-                <div className="p-3 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-850 text-xs text-neutral-950 dark:text-neutral-50 flex items-center gap-2 font-mono font-medium">
-                  <CheckCircle2 className="w-4 h-4 text-neutral-950 dark:text-neutral-50 flex-shrink-0" />
+                <div className="flex items-center gap-2.5 rounded-md border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-[13px] font-medium text-emerald-800">
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
                   <span>Optical sensor synchronized. Ready for session start.</span>
                 </div>
               )}
 
-              {/* Start Exam Button */}
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full text-xs font-mono uppercase tracking-wider py-3.5"
-                disabled={!isReadyToProceed}
-                onClick={handleContinueToExam}
-                icon={<ArrowRight className="w-4 h-4" />}
-              >
-                Initialize Exam Session
-              </Button>
+              <div className="pt-1">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full"
+                  disabled={!isReadyToProceed}
+                  onClick={handleContinueToExam}
+                  icon={<ArrowRight className="w-4 h-4" />}
+                >
+                  Initialize exam session
+                </Button>
 
-              {!isReadyToProceed && (
-                <p className="text-center text-[10px] font-mono text-neutral-500">
-                  {!isCameraReady
-                    ? 'Activate optical sensor above to continue'
-                    : 'Acknowledge privacy charter on the left to proceed'}
-                </p>
-              )}
+                {!isReadyToProceed && (
+                  <p className="text-center text-[12px] text-slate-500 mt-2.5">
+                    {!isCameraReady
+                      ? 'Activate optical sensor above to continue'
+                      : 'Acknowledge privacy charter on the left to proceed'}
+                  </p>
+                )}
+              </div>
             </div>
           </Card>
         </div>

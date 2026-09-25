@@ -52,31 +52,43 @@ export const Timer: React.FC<TimerProps> = ({
 
   return (
     <div
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md border font-mono text-xs sm:text-sm font-semibold transition-all select-none ${
+      className={`inline-flex items-center gap-2.5 pl-3 pr-3.5 py-1.5 rounded-md border transition-colors duration-300 select-none ${
         isFinalMinute
-          ? 'bg-black text-white dark:bg-white dark:text-black border-2 border-black dark:border-white shadow-xs'
+          ? 'bg-rose-50 border-rose-200'
           : isWarning
-          ? 'bg-neutral-200 dark:bg-neutral-800 text-black dark:text-white border-neutral-400 dark:border-neutral-600'
-          : 'bg-neutral-50 border-neutral-300 text-neutral-900 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-100'
+          ? 'bg-amber-50 border-amber-200'
+          : 'bg-white border-slate-200'
       } ${className}`}
       role="timer"
       aria-live="polite"
       title={isFinalMinute ? 'FINAL MINUTE: Assessment will auto-submit at 00:00' : isWarning ? 'Warning: Less than 5 minutes remaining' : 'Remaining Time'}
     >
       {isFinalMinute ? (
-        <AlertTriangle className="w-3.5 h-3.5" />
+        <AlertTriangle className="w-4 h-4 text-rose-600" />
+      ) : isWarning ? (
+        <AlertTriangle className="w-4 h-4 text-amber-600" />
       ) : (
-        <Clock className="w-3.5 h-3.5 text-neutral-500" />
+        <Clock className="w-4 h-4 text-slate-400" />
       )}
-      <span>
+      <span className="hidden sm:flex flex-col leading-none">
+        <span className="eyebrow">Time remaining</span>
+        <span
+          className={`data text-[15px] font-semibold mt-1 ${
+            isFinalMinute ? 'text-rose-700' : isWarning ? 'text-amber-700' : 'text-slate-900'
+          }`}
+        >
+          {hours > 0 && `${formatUnit(hours)}:`}
+          {formatUnit(minutes)}:{formatUnit(seconds)}
+        </span>
+      </span>
+      <span
+        className={`sm:hidden data text-sm font-semibold ${
+          isFinalMinute ? 'text-rose-700' : isWarning ? 'text-amber-700' : 'text-slate-900'
+        }`}
+      >
         {hours > 0 && `${formatUnit(hours)}:`}
         {formatUnit(minutes)}:{formatUnit(seconds)}
       </span>
-      {isFinalMinute && (
-        <span className="text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded bg-white text-black dark:bg-black dark:text-white">
-          FINAL MINUTE
-        </span>
-      )}
     </div>
   );
 };

@@ -4,19 +4,14 @@ import {
   ChevronRight,
   Bookmark,
   Send,
-  Shield,
   AlertTriangle,
-  HelpCircle,
-  Eye,
-  Camera,
-  Activity,
-  CheckCircle2,
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Timer } from '../components/common/Timer';
 import { CameraPreview } from '../components/common/CameraPreview';
+import { StatusBadge } from '../components/common/StatusBadge';
 import { Modal } from '../components/common/Modal';
 
 export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
@@ -32,7 +27,6 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
     submitExam,
     cameraState,
     requestCamera,
-    systemStatus,
     isDemoMode,
   } = useSession();
 
@@ -42,6 +36,7 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
   const unansweredCount = questions.length - answeredCount;
   const isCurrentFlagged = session.flaggedQuestionIds.includes(currentQuestion.id);
   const selectedOptionId = session.answers[currentQuestion.id];
+  const examProgress = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
   // Auto-submit when timer expires
   const handleTimerExpire = () => {
@@ -85,109 +80,136 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [session.currentQuestionIndex, questions.length, currentQuestion, nextQuestion, prevQuestion, selectAnswer, toggleFlagQuestion]);
 
+  const cameraStatus = (() => {
+    switch (cameraState.status) {
+      case 'active':
+        return { status: 'Camera live', variant: 'nominal' as const };
+      case 'requesting':
+        return { status: 'Starting', variant: 'info' as const };
+      case 'denied':
+        return { status: 'Blocked', variant: 'high' as const };
+      default:
+        return { status: 'Standby', variant: 'neutral' as const };
+    }
+  })();
+
   return (
-    <div className="space-y-4 py-4 font-sans">
-      {/* 1. Distraction-Free Monochrome Header */}
+    <div className="py-6 space-y-5">
+      {/* 1. Session bar: identity, progress, countdown, submit */}
       <header
-        className="bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 p-4 flex flex-wrap items-center justify-between gap-4"
+        className="panel px-5 py-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-4"
         role="region"
         aria-label="Examination Header"
       >
-        {/* Brand & Exam Name */}
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 flex items-center justify-center font-mono font-bold text-xs tracking-wider">
-            BX
-          </div>
-          <div>
-            <h2 className="font-bold text-neutral-950 dark:text-neutral-50 text-sm font-mono uppercase tracking-tight">
-              {session.settings.courseName || session.settings.examTitle}
-            </h2>
-            <div className="flex items-center gap-2 text-[11px] font-mono text-neutral-500">
-              <span>{session.settings.courseCode}</span>
-              <span>•</span>
-              <span>{session.student.name}</span>
-            </div>
+        <div className="min-w-[220px] flex-1">
+          <p className="eyebrow">Examination in progress</p>
+          <h1 className="text-[15px] font-semibold text-slate-900 tracking-[-0.01em] mt-1 truncate">
+            {session.settings.courseName || session.settings.examTitle}
+          </h1>
+          <p className="flex flex-wrap items-center gap-x-2 text-[12.5px] text-slate-500 mt-1">
+            <span className="data">{session.settings.courseCode}</span>
+            <span className="text-slate-300">·</span>
+            <span className="truncate">{session.student.name}</span>
+            <span className="text-slate-300">·</span>
+            <span>
+              {answeredCount} of {questions.length} answered
+            </span>
+          </p>
+          <div className="mt-2.5 h-1 w-full max-w-[320px] rounded-full bg-slate-200 overflow-hidden">
+            <div
+              className="h-full rounded-full bg-brand-700 transition-[width] duration-300 ease-out"
+              style={{ width: `${examProgress}%` }}
+            />
           </div>
         </div>
 
-        {/* Center: Countdown Timer */}
         <div className="flex items-center gap-3">
           <Timer
             initialDurationMinutes={session.settings.totalDurationMinutes}
             onExpire={handleTimerExpire}
           />
-        </div>
-
-        {/* Right: Submit Button */}
-        <div className="flex items-center gap-2">
           <Button
             variant="academic"
             size="sm"
             onClick={() => setIsSubmitModalOpen(true)}
             icon={<Send className="w-3.5 h-3.5" />}
           >
-            Submit Examination
+            Submit examination
           </Button>
         </div>
       </header>
 
-      {/* 2. Demo Mode Callout if active */}
+      {/* 2. Demo mode notice */}
       {isDemoMode && (
-        <div className="p-3 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-mono text-neutral-800 dark:text-neutral-200 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-none bg-neutral-950 dark:bg-white animate-pulse" />
-            <strong className="uppercase">DEMO MODE ACTIVE:</strong>
-            <span>Telemetry events can be injected synthetically without physical sensor hardware.</span>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50/70 px-4 py-2.5">
+          <div className="flex items-center gap-2.5 text-[13px] text-amber-900">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
+            <span>
+              <strong className="font-semibold">Demo mode active.</strong> Telemetry events can be
+              injected synthetically without physical sensor hardware.
+            </span>
           </div>
-          <span className="text-[10px] uppercase text-neutral-500 underline cursor-pointer" onClick={() => onNavigate('/demo')}>
-            Open Demo Lab
-          </span>
+          <button
+            onClick={() => onNavigate('/demo')}
+            className="text-[13px] font-medium text-amber-900 underline underline-offset-2 hover:text-amber-950"
+          >
+            Open demo lab
+          </button>
         </div>
       )}
 
-      {/* 3. Main Workspace Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Question Presentation */}
+      {/* 3. Main workspace grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left column: question presentation */}
         <main className="lg:col-span-8 space-y-4" role="main">
           <Card
-            title={`QUESTION ${String(currentQuestion.number).padStart(2, '0')} / ${String(questions.length).padStart(2, '0')}`}
-            subtitle={currentQuestion.category ? `Domain: ${currentQuestion.category.toUpperCase()}` : 'OBJECTIVE EVALUATION'}
+            title={`Question ${currentQuestion.number} of ${questions.length}`}
+            subtitle={
+              currentQuestion.category
+                ? `Domain: ${currentQuestion.category}`
+                : 'Objective evaluation'
+            }
             badge={
-              <span className="text-[10px] font-mono uppercase text-neutral-500 border border-neutral-300 dark:border-neutral-700 px-2 py-0.5">
-                Weight: 1.0 Point
+              <span className="hidden sm:inline text-[12px] text-slate-500 whitespace-nowrap">
+                Weight 1.0 point
               </span>
             }
+            bodyClassName="p-5 sm:p-6"
             action={
               <button
                 onClick={() => toggleFlagQuestion(currentQuestion.id)}
-                className={`inline-flex items-center gap-1.5 text-xs font-mono uppercase px-3 py-1.5 border transition-colors ${
+                className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-md text-[13px] font-medium border transition-colors ${
                   isCurrentFlagged
-                    ? 'border-neutral-950 bg-neutral-950 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950 font-bold'
-                    : 'border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-900'
+                    ? 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100'
+                    : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50 hover:text-slate-900'
                 }`}
                 aria-pressed={isCurrentFlagged}
                 title="Press 'M' key to toggle review bookmark"
               >
-                <Bookmark className={`w-3.5 h-3.5 ${isCurrentFlagged ? 'fill-current' : ''}`} />
-                <span>{isCurrentFlagged ? 'Flagged for Review' : 'Mark for Review'}</span>
+                <Bookmark
+                  className={`w-3.5 h-3.5 ${isCurrentFlagged ? 'fill-current text-amber-600' : ''}`}
+                />
+                <span>{isCurrentFlagged ? 'Flagged' : 'Mark for review'}</span>
               </button>
             }
           >
-            <div className="space-y-5">
-              {/* Question Prompt */}
-              <p className="text-base sm:text-lg text-neutral-950 dark:text-neutral-50 font-medium leading-relaxed">
+            <div className="space-y-6">
+              {/* Question prompt */}
+              <p className="text-[17px] leading-[1.6] text-slate-900">
                 {currentQuestion.prompt}
               </p>
 
-              {/* Code Snippet if present */}
+              {/* Code snippet if present */}
               {currentQuestion.codeSnippet && (
-                <div className="bg-neutral-950 text-neutral-100 p-4 font-mono text-xs sm:text-sm overflow-x-auto border border-neutral-800 leading-relaxed">
-                  <pre>{currentQuestion.codeSnippet}</pre>
+                <div className="rounded-md bg-slate-900 border border-slate-800 p-4 overflow-x-auto">
+                  <pre className="font-mono text-[13px] leading-relaxed text-slate-100">
+                    {currentQuestion.codeSnippet}
+                  </pre>
                 </div>
               )}
 
-              {/* Answer Choices */}
-              <fieldset className="space-y-3 pt-2">
+              {/* Answer choices */}
+              <fieldset className="space-y-2.5">
                 <legend className="sr-only">Answer choices for question {currentQuestion.number}</legend>
                 {currentQuestion.options.map((option, idx) => {
                   const isSelected = selectedOptionId === option.id;
@@ -196,10 +218,10 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
                   return (
                     <label
                       key={option.id}
-                      className={`flex items-start gap-3.5 p-4 border cursor-pointer transition-all ${
+                      className={`flex items-start gap-3.5 p-3.5 rounded-md border cursor-pointer transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand-600 ${
                         isSelected
-                          ? 'border-neutral-950 bg-neutral-100 dark:border-neutral-100 dark:bg-neutral-850 text-neutral-950 dark:text-neutral-50 ring-1 ring-neutral-950 dark:ring-neutral-100'
-                          : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 text-neutral-800 dark:text-neutral-200'
+                          ? 'border-brand-600 bg-brand-50/70'
+                          : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50'
                       }`}
                     >
                       <input
@@ -208,14 +230,25 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
                         value={option.id}
                         checked={isSelected}
                         onChange={() => selectAnswer(currentQuestion.id, option.id)}
-                        className="mt-1 w-4 h-4 rounded-none border-neutral-400 accent-neutral-950 focus:ring-0"
+                        className="sr-only"
                       />
-                      <div className="text-sm leading-relaxed select-none">
-                        <span className="font-mono font-bold mr-2 text-neutral-950 dark:text-neutral-50">
-                          [{letter}]
-                        </span>
-                        <span>{option.text}</span>
-                      </div>
+                      <span
+                        aria-hidden="true"
+                        className={`mt-0.5 grid place-items-center w-6 h-6 shrink-0 rounded-[4px] border text-[12px] font-semibold transition-colors ${
+                          isSelected
+                            ? 'bg-brand-700 text-white border-brand-700'
+                            : 'bg-white text-slate-500 border-slate-300'
+                        }`}
+                      >
+                        {letter}
+                      </span>
+                      <span
+                        className={`text-[15px] leading-relaxed ${
+                          isSelected ? 'text-slate-900' : 'text-slate-700'
+                        }`}
+                      >
+                        {option.text}
+                      </span>
                     </label>
                   );
                 })}
@@ -223,8 +256,8 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
             </div>
           </Card>
 
-          {/* Navigation Controls Bar */}
-          <div className="flex items-center justify-between pt-2">
+          {/* Navigation controls */}
+          <div className="flex items-center justify-between gap-4">
             <Button
               variant="outline"
               size="md"
@@ -232,12 +265,22 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
               onClick={prevQuestion}
               icon={<ChevronLeft className="w-4 h-4" />}
             >
-              Previous Item
+              Previous
             </Button>
 
-            <span className="text-[11px] font-mono text-neutral-500 hidden sm:inline">
-              Shortcuts: <strong>1-4</strong> or <strong>A-D</strong> select • <strong>Arrows</strong> navigate • <strong>M</strong> bookmark
-            </span>
+            <div className="hidden lg:flex items-center gap-1.5 text-[12px] text-slate-500">
+              <span className="kbd">1</span>
+              <span className="kbd">–</span>
+              <span className="kbd">4</span>
+              <span className="ml-1.5">select</span>
+              <span className="mx-1 text-slate-300">·</span>
+              <span className="kbd">←</span>
+              <span className="kbd">→</span>
+              <span className="ml-1.5">navigate</span>
+              <span className="mx-1 text-slate-300">·</span>
+              <span className="kbd">M</span>
+              <span className="ml-1.5">bookmark</span>
+            </div>
 
             {session.currentQuestionIndex < questions.length - 1 ? (
               <Button
@@ -247,7 +290,7 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
                 icon={<ChevronRight className="w-4 h-4" />}
                 className="flex-row-reverse"
               >
-                Next Item
+                Next
               </Button>
             ) : (
               <Button
@@ -256,81 +299,82 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
                 onClick={() => setIsSubmitModalOpen(true)}
                 icon={<Send className="w-4 h-4" />}
               >
-                Review & Submit
+                Review &amp; submit
               </Button>
             )}
           </div>
         </main>
 
-        {/* Right Column: Question Navigator & Camera Monitor */}
+        {/* Right column: navigator & monitoring */}
         <aside className="lg:col-span-4 space-y-4" role="complementary" aria-label="Examination Overview">
-          {/* Question Navigator Grid */}
+          {/* Question navigator */}
           <Card
-            title="Item Matrix"
+            title="Question navigator"
             subtitle={`${answeredCount} of ${questions.length} completed`}
           >
             <div className="space-y-4">
-              <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-2">
+              <div className="grid grid-cols-5 sm:grid-cols-6 lg:grid-cols-5 gap-1.5">
                 {questions.map((q, idx) => {
                   const isAnswered = !!session.answers[q.id];
                   const isCurrent = idx === session.currentQuestionIndex;
                   const isFlagged = session.flaggedQuestionIds.includes(q.id);
 
-                  let bgClass = 'bg-neutral-50 text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 border-neutral-300 dark:border-neutral-700';
+                  let cellClass =
+                    'bg-slate-50 text-slate-400 border-slate-200 hover:border-slate-400';
                   if (isCurrent) {
-                    bgClass = 'border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 font-bold';
+                    cellClass = 'bg-brand-700 text-white border-brand-700';
                   } else if (isFlagged) {
-                    bgClass = 'border-dashed border-neutral-600 bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-bold';
+                    cellClass = 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100';
                   } else if (isAnswered) {
-                    bgClass = 'border-neutral-400 bg-neutral-150 dark:bg-neutral-850 text-neutral-900 dark:text-neutral-100 font-medium';
+                    cellClass = 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50';
                   }
 
                   return (
                     <button
                       key={q.id}
                       onClick={() => goToQuestion(idx)}
-                      className={`relative h-10 border text-xs font-mono flex items-center justify-center transition-all ${bgClass}`}
+                      className={`relative h-9 rounded-[4px] border text-[13px] data font-medium transition-colors ${cellClass}`}
                       aria-label={`Jump to question ${idx + 1}`}
+                      aria-current={isCurrent ? 'true' : undefined}
                     >
                       <span>{String(idx + 1).padStart(2, '0')}</span>
                       {isFlagged && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-neutral-950 dark:bg-white" />
+                        <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-amber-500 ring-2 ring-white" />
                       )}
                     </button>
                   );
                 })}
               </div>
 
-              {/* Status Legend */}
-              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 flex flex-wrap items-center gap-3 text-[10px] font-mono uppercase text-neutral-500">
+              {/* Legend */}
+              <div className="pt-3.5 border-t border-slate-200 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-slate-500">
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-neutral-200 dark:bg-neutral-800 border border-neutral-400" />
+                  <span className="w-3 h-3 rounded-[3px] bg-white border border-slate-300" />
                   <span>Answered</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 border border-dashed border-neutral-600 bg-neutral-300 dark:bg-neutral-700" />
+                  <span className="w-3 h-3 rounded-[3px] bg-amber-50 border border-amber-300" />
                   <span>Flagged</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span className="w-2.5 h-2.5 bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700" />
+                  <span className="w-3 h-3 rounded-[3px] bg-slate-50 border border-slate-200" />
                   <span>Remaining</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-3 h-3 rounded-[3px] bg-brand-700 border border-brand-700" />
+                  <span>Current</span>
                 </div>
               </div>
             </div>
           </Card>
 
-          {/* Privacy Camera Feed */}
+          {/* Monitoring */}
           <Card
-            title="Sensory Verification Feed"
-            subtitle="Local memory loop (0ms video storage)"
-            badge={
-              <div className="flex items-center gap-1.5 px-2 py-0.5 border border-neutral-300 dark:border-neutral-700 text-[10px] font-mono uppercase text-neutral-600 dark:text-neutral-400">
-                <span className="w-1.5 h-1.5 bg-neutral-950 dark:bg-neutral-50" />
-                <span>EPHEMERAL RAM</span>
-              </div>
-            }
+            title="Monitoring"
+            subtitle="Local memory loop · 0ms video storage"
+            badge={<StatusBadge status={cameraStatus.status} variant={cameraStatus.variant} size="sm" />}
           >
-            <div className="space-y-3">
+            <div className="space-y-3.5">
               <CameraPreview
                 cameraState={cameraState}
                 onRequestCamera={requestCamera}
@@ -338,69 +382,75 @@ export const ActiveExamPage: React.FC<{ onNavigate: (path: string) => void }> = 
                 className="w-full aspect-video"
               />
 
-              <div className="text-[10px] font-mono text-neutral-500 space-y-1">
-                <div className="flex justify-between">
-                  <span>Storage Policy:</span>
-                  <span className="text-neutral-900 dark:text-neutral-100 font-bold">Zero Raw Frames Persisted</span>
+              <dl className="divide-y divide-slate-100 border-t border-slate-200 text-[12.5px]">
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="text-slate-500">Storage policy</dt>
+                  <dd className="font-medium text-slate-900">Zero raw frames persisted</dd>
                 </div>
-                <div className="flex justify-between">
-                  <span>Completed Items:</span>
-                  <span className="font-bold text-neutral-900 dark:text-neutral-100">
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="text-slate-500">Items completed</dt>
+                  <dd className="data font-medium text-slate-900">
                     {answeredCount} / {questions.length}
-                  </span>
+                  </dd>
                 </div>
-              </div>
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="text-slate-500">Flagged for review</dt>
+                  <dd className="data font-medium text-slate-900">
+                    {session.flaggedQuestionIds.length}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </Card>
         </aside>
       </div>
 
-      {/* 4. Submission Modal */}
+      {/* 4. Submission modal */}
       <Modal
         isOpen={isSubmitModalOpen}
         onClose={() => setIsSubmitModalOpen(false)}
-        title="Finalize Examination Submission"
+        title="Finalize examination submission"
         subtitle="Confirm completion of session"
         maxWidth="md"
         footer={
           <div className="flex items-center justify-end gap-2.5">
             <Button variant="outline" size="sm" onClick={() => setIsSubmitModalOpen(false)}>
-              Resume Exam
+              Resume exam
             </Button>
             <Button variant="academic" size="sm" onClick={handleConfirmSubmit}>
-              Confirm Final Submission
+              Confirm final submission
             </Button>
           </div>
         }
       >
-        <div className="space-y-4 text-xs font-mono">
-          <div className="p-4 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 space-y-2">
-            <div className="flex justify-between text-neutral-700 dark:text-neutral-300">
-              <span>Answered items:</span>
-              <strong className="text-neutral-950 dark:text-neutral-50 font-bold">{answeredCount}</strong>
+        <div className="space-y-4">
+          <dl className="panel-inset divide-y divide-slate-200 bg-white">
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5 text-[13px]">
+              <dt className="text-slate-500">Answered items</dt>
+              <dd className="data font-semibold text-slate-900">{answeredCount}</dd>
             </div>
-            <div className="flex justify-between text-neutral-700 dark:text-neutral-300">
-              <span>Unanswered items:</span>
-              <strong className="text-neutral-950 dark:text-neutral-50 font-bold">{unansweredCount}</strong>
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5 text-[13px]">
+              <dt className="text-slate-500">Unanswered items</dt>
+              <dd className="data font-semibold text-slate-900">{unansweredCount}</dd>
             </div>
-            <div className="flex justify-between text-neutral-700 dark:text-neutral-300">
-              <span>Items marked for review:</span>
-              <strong className="text-neutral-950 dark:text-neutral-50 font-bold">
+            <div className="flex items-center justify-between gap-4 px-4 py-2.5 text-[13px]">
+              <dt className="text-slate-500">Items marked for review</dt>
+              <dd className="data font-semibold text-slate-900">
                 {session.flaggedQuestionIds.length}
-              </strong>
+              </dd>
             </div>
-          </div>
+          </dl>
 
           {unansweredCount > 0 && (
-            <div className="p-3 border border-neutral-950 dark:border-neutral-50 bg-neutral-100 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 rounded-md border border-amber-200 bg-amber-50/70 px-4 py-3 text-[13px] text-amber-900">
+              <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600" />
               <span>
                 Attention: {unansweredCount} question{unansweredCount > 1 ? 's remain' : ' remains'} unanswered. You may resume and answer prior to finalization.
               </span>
             </div>
           )}
 
-          <p className="text-neutral-600 dark:text-neutral-400">
+          <p className="text-[13px] text-slate-600 leading-relaxed">
             Upon submission, your answers and encrypted behavioral telemetry record will be cryptographically locked for human examiner evaluation.
           </p>
         </div>

@@ -16,38 +16,36 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
   };
 
   return (
-    <div className={`p-4 border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-950 font-sans ${className}`}>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950">
+    <div className={`rounded-lg border border-slate-200 bg-white shadow-xs overflow-hidden ${className}`}>
+      <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 border-b border-slate-200 bg-slate-50/70">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="inline-grid place-items-center w-7 h-7 rounded-md bg-slate-900 text-white shrink-0">
             <Sparkles className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="font-bold text-xs sm:text-sm text-neutral-950 dark:text-neutral-50 font-mono uppercase flex items-center gap-2">
-              <span>DEMO & SYNTHETIC TELEMETRY INJECTOR</span>
-              <span className="text-[10px] font-mono px-2 py-0.5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100">
-                {isDemoMode ? 'SIMULATION ACTIVE' : 'PHYSICAL SENSORS'}
+          </span>
+          <div className="min-w-0">
+            <h4 className="text-[13.5px] font-semibold text-slate-900 flex flex-wrap items-center gap-2">
+              <span>Demo &amp; synthetic telemetry injector</span>
+              <span className="rounded-full border border-slate-200 bg-white px-2 py-[2px] text-[10.5px] font-medium uppercase tracking-[0.06em] text-slate-500">
+                {isDemoMode ? 'Simulation active' : 'Physical sensors'}
               </span>
             </h4>
-            <p className="text-[11px] font-mono text-neutral-500">
+            <p className="text-[12px] text-slate-500 mt-0.5">
               Trigger deterministic telemetry events to demonstrate multi-signal anomaly correlation.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant={isDemoMode ? 'academic' : 'outline'}
-            size="sm"
-            onClick={() => setDemoMode(!isDemoMode)}
-          >
-            {isDemoMode ? 'Switch to Physical Hardware' : 'Enable Demo Simulation Mode'}
-          </Button>
-        </div>
+        <Button
+          variant={isDemoMode ? 'academic' : 'outline'}
+          size="sm"
+          onClick={() => setDemoMode(!isDemoMode)}
+        >
+          {isDemoMode ? 'Switch to physical hardware' : 'Enable demo simulation'}
+        </Button>
       </div>
 
       {/* Simulation triggers */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800 font-mono">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 p-5">
         <Button
           variant="outline"
           size="sm"
@@ -110,9 +108,9 @@ export const DemoControlPanel: React.FC<{ className?: string }> = ({ className =
       </div>
 
       {lastTriggered && (
-        <div className="mt-2.5 px-3 py-1.5 border border-neutral-950 dark:border-white bg-neutral-950 text-white dark:bg-white dark:text-neutral-950 text-[11px] font-mono flex items-center gap-1.5 font-bold">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Synthetic event generated & correlated: {lastTriggered}</span>
+        <div className="mx-5 mb-5 flex items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50/70 px-3.5 py-2.5 text-[12.5px] font-medium text-emerald-800">
+          <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+          <span>Synthetic event generated &amp; correlated: {lastTriggered}</span>
         </div>
       )}
     </div>

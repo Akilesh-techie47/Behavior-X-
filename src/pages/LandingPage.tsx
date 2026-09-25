@@ -5,52 +5,129 @@ import {
   Cpu,
   ArrowRight,
   Activity,
-  Users,
   Lock,
   Sparkles,
-  CheckCircle2,
   Network,
-  Keyboard,
-  MousePointer,
-  HelpCircle,
-  Scale,
   Bot,
   Layers,
-  ChevronRight,
 } from 'lucide-react';
-import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+
+const MEASUREMENTS = [
+  {
+    label: 'Review priority',
+    value: 74,
+    status: 'High review priority',
+    description:
+      'How strongly the observed multi-signal pattern warrants human academic review.',
+  },
+  {
+    label: 'Evidence quality',
+    value: 88,
+    status: 'Corroborated evidence',
+    description:
+      'Confidence and cross-sensor corroboration supporting the observation.',
+  },
+  {
+    label: 'Observation quality',
+    value: 94,
+    status: 'Optimal sensor pipeline',
+    description:
+      'Operating stability of camera, environmental lighting, and browser APIs.',
+  },
+];
+
+const PIPELINE_STEPS = [
+  {
+    icon: <Eye className="w-4 h-4" />,
+    title: 'Ingestion',
+    description: 'Camera, screen, keys, cursors',
+  },
+  {
+    icon: <Cpu className="w-4 h-4" />,
+    title: '0ms RAM',
+    description: 'Zero video stored to disk',
+  },
+  {
+    icon: <Activity className="w-4 h-4" />,
+    title: 'Baseline',
+    description: 'Session typing & gaze rhythm',
+  },
+  {
+    icon: <Sparkles className="w-4 h-4" />,
+    title: 'Fusion',
+    description: 'Cross-modal synergy engine',
+  },
+  {
+    icon: <Network className="w-4 h-4" />,
+    title: 'Evidence',
+    description: 'Causal graph & counterfactuals',
+  },
+  {
+    icon: <Bot className="w-4 h-4" />,
+    title: 'Gemini AI',
+    description: 'Objective natural synthesis',
+  },
+  {
+    icon: <ShieldCheck className="w-4 h-4" />,
+    title: 'Human',
+    description: 'Examiner sovereign',
+    final: true,
+  },
+];
+
+const PILLARS = [
+  {
+    icon: <Lock className="w-4 h-4" />,
+    title: 'Zero raw video retention (0ms)',
+    subtitle: 'RAM-only optical geometry extraction',
+    body: 'Frames are processed inside transient RAM for under 100 milliseconds and permanently destroyed. No video recordings, screenshots of rooms, or facial recognition biometric embeddings ever touch permanent storage.',
+  },
+  {
+    icon: <Activity className="w-4 h-4" />,
+    title: 'Deterministic temporal fusion',
+    subtitle: 'Multi-signal correlation with decay',
+    body: 'Individual brief glances are never flagged. Anomaly detection evaluates a continuous sliding 30-second window, personal typing/response baselines, and multi-sensor cross-category synergies before elevating review priorities.',
+  },
+  {
+    icon: <ShieldCheck className="w-4 h-4" />,
+    title: 'Non-accusatory AI synthesis',
+    subtitle: 'Gemini 3.8 Flash layer + fallback',
+    body: 'The system provides certified academic examiners with structured evidence summaries, causal graphs, and counterfactuals. It never accuses or infers student guilt. The certified human examiner remains the sole decision maker.',
+  },
+];
 
 export const LandingPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   return (
-    <div className="space-y-16 py-10">
-      {/* 1. HERO SECTION */}
-      <section className="text-center max-w-4xl mx-auto space-y-6 pt-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-300 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 text-[11px] font-mono font-bold tracking-wider text-black dark:text-white uppercase shadow-2xs">
-          <span>BEHAVIOR-X V2</span>
-          <span>•</span>
-          <span>MULTIMODAL EXAMINATION INTEGRITY PLATFORM</span>
+    <div className="py-10 sm:py-14 space-y-16 sm:space-y-20">
+      {/* 1. Hero */}
+      <section className="max-w-3xl mx-auto text-center space-y-6">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 shadow-xs">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand-700" />
+          <span className="text-[11px] font-medium uppercase tracking-[0.09em] text-slate-600">
+            Multimodal examination integrity platform
+          </span>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-black dark:text-white tracking-tight leading-[1.08] font-sans">
-          Don't watch the student. <br />
-          <span className="underline decoration-neutral-400 dark:decoration-neutral-600 underline-offset-8">
-            Understand the evidence.
-          </span>
+        <h1 className="text-[32px] sm:text-[40px] font-semibold tracking-[-0.025em] leading-[1.14] text-slate-900">
+          Don't watch the student.
+          <br />
+          <span className="text-brand-700">Understand the evidence.</span>
         </h1>
 
-        <p className="text-base sm:text-lg text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto leading-relaxed font-normal">
-          Multimodal examination intelligence that transforms camera telemetry, browser events, keystrokes, and question response timing into explainable evidence for human review.
+        <p className="text-[15px] sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+          Multimodal examination intelligence that transforms camera telemetry, browser events,
+          keystrokes, and question response timing into explainable evidence for human review.
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 pt-1">
           <Button
             variant="primary"
             size="lg"
             onClick={() => onNavigate('/demo')}
             icon={<Sparkles className="w-4 h-4" />}
           >
-            Launch Live Demo
+            Launch live demo
           </Button>
           <Button
             variant="outline"
@@ -58,167 +135,105 @@ export const LandingPage: React.FC<{ onNavigate: (path: string) => void }> = ({ 
             onClick={() => onNavigate('/examiner')}
             icon={<Layers className="w-4 h-4" />}
           >
-            Examiner Command Center
+            Examiner command center
           </Button>
           <Button
-            variant="outline"
+            variant="ghost"
             size="lg"
             onClick={() => onNavigate('/student')}
             icon={<ArrowRight className="w-4 h-4" />}
           >
-            Candidate Portal
+            Candidate portal
           </Button>
         </div>
       </section>
 
-      {/* 2. THE THREE CORE SCORES ARCHITECTURE */}
+      {/* 2. Core measurements — one strip, not three floating cards */}
       <section className="max-w-5xl mx-auto">
-        <div className="p-6 rounded-lg bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-wider text-black dark:text-white">
-              The Three Core Measurements Architecture
-            </span>
-            <span className="text-xs font-mono text-neutral-400">
-              Never Collapse Into A Single "Cheating Score"
+        <div className="panel overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 border-b border-slate-200">
+            <span className="eyebrow text-slate-700">The three core measurements</span>
+            <span className="text-[12px] text-slate-500">
+              Never collapse into a single "cheating score"
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-xs">
-            <div className="p-4 rounded border border-neutral-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-1.5">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
-                1. Review Priority
-              </span>
-              <div className="text-3xl font-black text-black dark:text-white">
-                74 <span className="text-xs text-neutral-400 font-normal">/ 100</span>
+          <div className="grid grid-cols-1 sm:grid-cols-3 sm:divide-x sm:divide-slate-200">
+            {MEASUREMENTS.map(m => (
+              <div key={m.label} className="px-5 py-5 sm:px-6">
+                <span className="eyebrow">{m.label}</span>
+                <div className="mt-2 flex items-baseline gap-1.5">
+                  <span className="data text-[30px] font-semibold leading-none text-slate-900">
+                    {m.value}
+                  </span>
+                  <span className="data text-[12px] text-slate-400">/ 100</span>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-brand-700" />
+                  <span className="text-[12.5px] font-medium text-slate-800">{m.status}</span>
+                </div>
+                <p className="text-[12.5px] text-slate-500 leading-relaxed mt-2">{m.description}</p>
               </div>
-              <span className="text-[11px] font-bold uppercase text-black dark:text-white block">
-                HIGH REVIEW PRIORITY
-              </span>
-              <p className="text-neutral-500 text-[11px] font-sans leading-snug">
-                How strongly the observed multi-signal pattern warrants human academic review.
-              </p>
-            </div>
-
-            <div className="p-4 rounded border border-neutral-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-1.5">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
-                2. Evidence Quality
-              </span>
-              <div className="text-3xl font-black text-black dark:text-white">
-                88 <span className="text-xs text-neutral-400 font-normal">/ 100</span>
-              </div>
-              <span className="text-[11px] font-bold uppercase text-black dark:text-white block">
-                CORROBORATED EVIDENCE
-              </span>
-              <p className="text-neutral-500 text-[11px] font-sans leading-snug">
-                Confidence and cross-sensor corroboration supporting the observation.
-              </p>
-            </div>
-
-            <div className="p-4 rounded border border-neutral-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 space-y-1.5">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-widest block font-bold">
-                3. Observation Quality
-              </span>
-              <div className="text-3xl font-black text-black dark:text-white">
-                94 <span className="text-xs text-neutral-400 font-normal">/ 100</span>
-              </div>
-              <span className="text-[11px] font-bold uppercase text-black dark:text-white block">
-                OPTIMAL SENSOR PIPELINE
-              </span>
-              <p className="text-neutral-500 text-[11px] font-sans leading-snug">
-                Operating stability of camera, environmental lighting, and browser APIs.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* 3. MULTIMODAL PIPELINE FLOW */}
-      <section className="max-w-5xl mx-auto space-y-4">
-        <div className="text-center space-y-1">
-          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-neutral-500">
-            End-to-End Multimodal Intelligence Pipeline
-          </h3>
-          <p className="text-sm font-semibold text-black dark:text-white">
-            From Edge Telemetry to Explainable Evidence & Human Sovereign Review
+      {/* 3. Pipeline */}
+      <section className="max-w-5xl mx-auto space-y-5">
+        <div className="text-center space-y-2">
+          <p className="eyebrow">Signal pipeline</p>
+          <h2 className="text-xl sm:text-2xl font-semibold tracking-[-0.02em] text-slate-900">
+            From edge telemetry to explainable evidence
+          </h2>
+          <p className="text-[13.5px] text-slate-500 max-w-2xl mx-auto leading-relaxed">
+            A deterministic chain of custody from raw sensor signal to human reviewer determination.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 font-mono text-[11px] text-center">
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Eye className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">1. Ingestion</strong>
-            <span className="text-neutral-500 text-[10px]">Camera, Screen, Keys, Cursors</span>
-          </div>
-
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Cpu className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">2. 0ms RAM</strong>
-            <span className="text-neutral-500 text-[10px]">Zero Video Stored to Disk</span>
-          </div>
-
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Activity className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">3. Baseline</strong>
-            <span className="text-neutral-500 text-[10px]">Session Typing & Gaze Rhythm</span>
-          </div>
-
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Sparkles className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">4. Fusion</strong>
-            <span className="text-neutral-500 text-[10px]">Cross-Modal Synergy Engine</span>
-          </div>
-
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Network className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">5. Evidence</strong>
-            <span className="text-neutral-500 text-[10px]">Causal Graph & Counterfactuals</span>
-          </div>
-
-          <div className="p-3 rounded border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 flex flex-col justify-center items-center gap-1">
-            <Bot className="w-4 h-4 text-black dark:text-white" />
-            <strong className="text-black dark:text-white">6. Gemini AI</strong>
-            <span className="text-neutral-500 text-[10px]">Objective Natural Synthesis</span>
-          </div>
-
-          <div className="p-3 rounded border border-black dark:border-white bg-black dark:bg-white text-white dark:text-black flex flex-col justify-center items-center gap-1 font-bold">
-            <ShieldCheck className="w-4 h-4" />
-            <span>7. Human</span>
-            <span className="text-[10px] opacity-80 font-normal">Examiner Sovereign</span>
-          </div>
-        </div>
+        <ol className="panel px-5 sm:px-6 py-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-1">
+          {PIPELINE_STEPS.map((step, idx) => (
+            <li key={step.title} className="flex items-start gap-3 py-3.5">
+              <span className="data text-[12px] text-slate-300 pt-0.5 w-5 shrink-0">
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+              <div className="min-w-0">
+                <div
+                  className={`flex items-center gap-2 text-[13.5px] font-medium ${
+                    step.final ? 'text-brand-700' : 'text-slate-900'
+                  }`}
+                >
+                  <span className={step.final ? 'text-brand-600' : 'text-slate-400'}>
+                    {step.icon}
+                  </span>
+                  <span>{step.title}</span>
+                </div>
+                <p className="text-[12.5px] text-slate-500 leading-snug mt-1">{step.description}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </section>
 
-      {/* 4. THREE CORE PILLARS IN MONOCHROME */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-        <Card
-          title="Zero Raw Video Retention (0ms)"
-          subtitle="RAM-only optical geometry extraction"
-          badge={<Lock className="w-4 h-4 text-black dark:text-white" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-normal">
-            Frames are processed inside transient RAM for under 100 milliseconds and permanently destroyed. No video recordings, screenshots of rooms, or facial recognition biometric embeddings ever touch permanent storage.
-          </p>
-        </Card>
-
-        <Card
-          title="Deterministic Temporal Fusion"
-          subtitle="Multi-signal correlation with decay"
-          badge={<Activity className="w-4 h-4 text-black dark:text-white" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-normal">
-            Individual brief glances are never flagged. Anomaly detection evaluates a continuous sliding 30-second window, personal typing/response baselines, and multi-sensor cross-category synergies before elevating review priorities.
-          </p>
-        </Card>
-
-        <Card
-          title="Non-Accusatory AI Synthesis"
-          subtitle="Gemini 3.8 Flash layer + fallback"
-          badge={<Scale className="w-4 h-4 text-black dark:text-white" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-normal">
-            The system provides certified academic examiners with structured evidence summaries, causal graphs, and counterfactuals. It never accuses or infers student guilt. The certified human examiner remains the sole decision maker.
-          </p>
-        </Card>
+      {/* 4. Design principles */}
+      <section className="max-w-5xl mx-auto">
+        <p className="eyebrow text-center mb-5">Design principles</p>
+        <div className="panel overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-slate-200">
+            {PILLARS.map(pillar => (
+              <div key={pillar.title} className="px-5 sm:px-6 py-6">
+                <span className="inline-grid place-items-center w-8 h-8 rounded-md bg-slate-100 text-slate-600 mb-3.5">
+                  {pillar.icon}
+                </span>
+                <h3 className="text-[15px] font-semibold text-slate-900 tracking-[-0.01em]">
+                  {pillar.title}
+                </h3>
+                <p className="text-[12.5px] text-slate-500 mt-1">{pillar.subtitle}</p>
+                <p className="text-[13px] text-slate-600 leading-relaxed mt-3">{pillar.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );

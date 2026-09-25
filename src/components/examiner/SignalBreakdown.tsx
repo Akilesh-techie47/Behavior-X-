@@ -1,6 +1,6 @@
 import React from 'react';
-import { Eye, Users, Minimize2, Camera, Layers, Keyboard, HelpCircle, Sparkles } from 'lucide-react';
-import { BehaviorEvent, EventCategory } from '../../types';
+import { Eye, Users, Minimize2, Keyboard, HelpCircle, Sparkles } from 'lucide-react';
+import { BehaviorEvent } from '../../types';
 import { ProgressBar } from '../common/ProgressBar';
 
 interface SignalBreakdownProps {
@@ -15,7 +15,6 @@ export const SignalBreakdown: React.FC<SignalBreakdownProps> = ({ events, classN
   let interactionCount = 0;
   let questionCount = 0;
   let fusionCount = 0;
-  let systemCount = 0;
 
   for (const e of events) {
     if (e.category === 'attention') attentionCount++;
@@ -24,84 +23,82 @@ export const SignalBreakdown: React.FC<SignalBreakdownProps> = ({ events, classN
     else if (e.category === 'interaction') interactionCount++;
     else if (e.category === 'question') questionCount++;
     else if (e.category === 'fusion' || e.category === 'aggregated') fusionCount++;
-    else if (e.category === 'system') systemCount++;
   }
 
   const total = Math.max(1, events.length);
 
+  const rows = [
+    {
+      icon: <Eye className="w-3.5 h-3.5" />,
+      label: 'Attention deviations',
+      hint: 'Gaze / pose',
+      count: attentionCount,
+      color: 'monochrome' as const,
+    },
+    {
+      icon: <Users className="w-3.5 h-3.5" />,
+      label: 'Presence & multiple persons',
+      hint: 'Face count',
+      count: presenceCount,
+      color: 'rose' as const,
+    },
+    {
+      icon: <Minimize2 className="w-3.5 h-3.5" />,
+      label: 'Window activity & tab focus',
+      hint: 'Visibility',
+      count: visibilityCount,
+      color: 'default' as const,
+    },
+    {
+      icon: <Keyboard className="w-3.5 h-3.5" />,
+      label: 'Keystroke & cursor dynamics',
+      hint: 'Interaction',
+      count: interactionCount,
+      color: 'amber' as const,
+    },
+    {
+      icon: <HelpCircle className="w-3.5 h-3.5" />,
+      label: 'Question response anomalies',
+      hint: 'Timing',
+      count: questionCount,
+      color: 'emerald' as const,
+    },
+  ];
+
   return (
-    <div className={`space-y-3.5 text-xs ${className}`}>
-      {/* 1. Attention */}
-      <div>
-        <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Eye className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span>Attention Deviations (Gaze / Pose)</span>
-          </span>
-          <span className="font-mono text-neutral-500">{attentionCount} ({Math.round((attentionCount / total) * 100)}%)</span>
+    <div className={`space-y-3 ${className}`}>
+      {rows.map(row => (
+        <div key={row.label}>
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-slate-800 min-w-0">
+              <span className="text-slate-400 shrink-0">{row.icon}</span>
+              <span className="truncate">{row.label}</span>
+              <span className="hidden sm:inline text-[11.5px] text-slate-400 shrink-0">
+                {row.hint}
+              </span>
+            </span>
+            <span className="data text-[11.5px] text-slate-500 shrink-0">
+              {row.count} · {Math.round((row.count / total) * 100)}%
+            </span>
+          </div>
+          <ProgressBar value={row.count} max={total} color={row.color} size="xs" />
         </div>
-        <ProgressBar value={attentionCount} max={total} color="monochrome" />
-      </div>
+      ))}
 
-      {/* 2. Presence */}
-      <div>
-        <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Users className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span>Presence & Multiple Persons</span>
-          </span>
-          <span className="font-mono text-neutral-500">{presenceCount} ({Math.round((presenceCount / total) * 100)}%)</span>
-        </div>
-        <ProgressBar value={presenceCount} max={total} color="rose" />
-      </div>
-
-      {/* 3. Window & Tab Activity */}
-      <div>
-        <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Minimize2 className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span>Window Activity & Tab Focus</span>
-          </span>
-          <span className="font-mono text-neutral-500">{visibilityCount} ({Math.round((visibilityCount / total) * 100)}%)</span>
-        </div>
-        <ProgressBar value={visibilityCount} max={total} color="default" />
-      </div>
-
-      {/* 4. Keyboard & Interaction Dynamics */}
-      <div>
-        <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-          <span className="flex items-center gap-1.5">
-            <Keyboard className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span>Keystroke & Cursor Dynamics</span>
-          </span>
-          <span className="font-mono text-neutral-500">{interactionCount} ({Math.round((interactionCount / total) * 100)}%)</span>
-        </div>
-        <ProgressBar value={interactionCount} max={total} color="amber" />
-      </div>
-
-      {/* 5. Question-Level Timing */}
-      <div>
-        <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-          <span className="flex items-center gap-1.5">
-            <HelpCircle className="w-3.5 h-3.5 text-black dark:text-white" />
-            <span>Question Response Anomalies</span>
-          </span>
-          <span className="font-mono text-neutral-500">{questionCount} ({Math.round((questionCount / total) * 100)}%)</span>
-        </div>
-        <ProgressBar value={questionCount} max={total} color="emerald" />
-      </div>
-
-      {/* 6. Multimodal Sequence Fusion */}
       {fusionCount > 0 && (
         <div>
-          <div className="flex justify-between items-center text-neutral-800 dark:text-neutral-200 mb-1 font-medium">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-black dark:text-white" />
-              <span>Multimodal Correlated Sequences</span>
+          <div className="flex items-center justify-between gap-3 mb-1.5">
+            <span className="flex items-center gap-1.5 text-[12.5px] font-medium text-slate-800 min-w-0">
+              <span className="text-slate-400 shrink-0">
+                <Sparkles className="w-3.5 h-3.5" />
+              </span>
+              <span className="truncate">Multimodal correlated sequences</span>
             </span>
-            <span className="font-mono text-neutral-500">{fusionCount} ({Math.round((fusionCount / total) * 100)}%)</span>
+            <span className="data text-[11.5px] text-slate-500 shrink-0">
+              {fusionCount} · {Math.round((fusionCount / total) * 100)}%
+            </span>
           </div>
-          <ProgressBar value={fusionCount} max={total} color="monochrome" />
+          <ProgressBar value={fusionCount} max={total} color="indigo" size="xs" />
         </div>
       )}
     </div>

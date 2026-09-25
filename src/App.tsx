@@ -64,40 +64,38 @@ export default function App() {
 
   return (
     <SessionProvider>
-      <div className="min-h-screen bg-white dark:bg-black text-neutral-950 dark:text-neutral-50 flex flex-col font-sans transition-colors duration-200">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
         <Header currentPath={currentPath} onNavigate={navigate} />
 
-        <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8">
-          {renderCurrentRoute()}
-        </div>
+        <main className="flex-1 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {renderCurrentRoute()}
+          </div>
+        </main>
 
-        <footer className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-black py-8 mt-12 text-xs font-mono text-neutral-500">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-neutral-950 dark:text-neutral-50 uppercase">BEHAVIOR-X V2</span>
-              <span>•</span>
-              <span>Multimodal Examination Intelligence Platform</span>
-              <span>•</span>
-              <span className="text-neutral-400">0ms Stored Video</span>
+        <footer className="mt-16 border-t border-slate-200 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-3">
+            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px] text-slate-500">
+              <span className="font-semibold text-slate-900 tracking-[-0.01em]">
+                Behavior-X v2
+              </span>
+              <span className="text-slate-300">|</span>
+              <span>Multimodal examination intelligence platform</span>
+              <span className="text-slate-300">|</span>
+              <span className="inline-flex items-center gap-1.5 text-emerald-700">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                0 ms stored video
+              </span>
             </div>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => navigate('/demo')}
-                className="text-neutral-950 dark:text-neutral-50 hover:underline font-bold uppercase"
-              >
-                Deterministic Demo (/demo)
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <button onClick={() => navigate('/demo')} className="quiet-link">
+                Deterministic demo
               </button>
-              <button
-                onClick={() => navigate('/examiner')}
-                className="hover:text-neutral-950 dark:hover:text-neutral-200 transition-colors uppercase"
-              >
-                Examiner Console
+              <button onClick={() => navigate('/examiner')} className="quiet-link">
+                Examiner console
               </button>
-              <button
-                onClick={() => navigate('/privacy')}
-                className="hover:text-neutral-950 dark:hover:text-neutral-200 transition-colors uppercase"
-              >
-                Privacy Charter
+              <button onClick={() => navigate('/privacy')} className="quiet-link">
+                Privacy charter
               </button>
             </div>
           </div>

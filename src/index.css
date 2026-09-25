@@ -1,33 +1,149 @@
 @import "tailwindcss";
 
+/*
+ * Behavior-X design tokens.
+ *
+ * The interface is a single, deliberately light surface: neutral slate canvas,
+ * white working surfaces, one institutional navy accent, and a small semantic
+ * set reserved strictly for status. Dark mode is opt-in only, so the product
+ * never silently inverts on a machine with a dark OS preference.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Restrained corners — nothing is pill-shaped by default. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+
+  /* Brand: institutional ink navy. */
+  --color-brand-50: #eef2f7;
+  --color-brand-100: #dde5ef;
+  --color-brand-200: #c2d1e2;
+  --color-brand-300: #9ab2ce;
+  --color-brand-400: #6b8db4;
+  --color-brand-500: #4c6e99;
+  --color-brand-600: #3b587e;
+  --color-brand-700: #32496a;
+  --color-brand-800: #2c3e59;
+  --color-brand-900: #283549;
+  --color-brand-950: #1a2233;
+}
+
 @layer base {
   :root {
-    color-scheme: light dark;
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     font-family: var(--font-sans);
-    @apply antialiased text-neutral-900 dark:text-neutral-100 bg-white dark:bg-black;
+    font-size: 15px;
+    line-height: 1.55;
+    @apply antialiased text-slate-900 bg-slate-50;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* Surgical, minimal monochrome scrollbars */
+  /* One consistent focus treatment across every interactive element. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-100);
+    color: var(--color-brand-950);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    @apply text-slate-900;
+    text-wrap: balance;
+  }
+
+  /* Native controls inherit the product accent instead of the OS default. */
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-brand-700);
+  }
+
+  select {
+    @apply bg-white text-slate-800;
+  }
+
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 10px;
+    height: 10px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-neutral-300 dark:bg-neutral-800 rounded-full;
+    @apply bg-slate-300 border-[3px] border-solid border-transparent bg-clip-content rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-neutral-400 dark:bg-neutral-700;
+    @apply bg-slate-400 bg-clip-content;
+  }
+}
+
+@layer components {
+  /* Working surface used for every panel of content. */
+  .panel {
+    @apply bg-white border border-slate-200 rounded-lg shadow-xs;
   }
 
-  ::selection {
-    @apply bg-neutral-900 text-white dark:bg-neutral-100 dark:text-black;
+  /* Nested surface: sits inside a panel, so no elevation of its own. */
+  .panel-inset {
+    @apply bg-slate-50 border border-slate-200 rounded-md;
+  }
+
+  /* Uppercase micro-label used above values and section content. */
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-[0.09em] text-slate-500;
+  }
+
+  /* Tabular figures for anything numeric or time-based. */
+  .data {
+    @apply font-mono tabular-nums;
+  }
+
+  /* Keyboard shortcut cap. */
+  .kbd {
+    @apply inline-flex items-center justify-center min-w-[1.35rem] h-[1.35rem] px-1
+      rounded-[3px] border border-slate-300 bg-white text-[10px] font-medium
+      text-slate-600 shadow-xs;
+  }
+
+  /* Data table primitives — dense, quiet, and scannable. */
+  .data-table {
+    @apply w-full text-left border-collapse;
+  }
+  .data-table thead th {
+    @apply text-[11px] font-medium uppercase tracking-[0.07em] text-slate-500
+      pb-2.5 border-b border-slate-200 whitespace-nowrap;
+  }
+  .data-table tbody td {
+    @apply py-3 pr-4 align-middle border-b border-slate-100;
+  }
+  .data-table tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  /* Quiet inline text button used in headers and footers. */
+  .quiet-link {
+    @apply text-[13px] font-medium text-slate-500 hover:text-brand-700 transition-colors;
   }
 }

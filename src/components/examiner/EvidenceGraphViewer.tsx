@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Network, Info, Link2, ArrowRight, ShieldCheck, Sparkles, CheckCircle2 } from 'lucide-react';
-import { EvidenceGraphData, EvidenceNode, EvidenceRelationship } from '../../types';
+import { Network, Link2 } from 'lucide-react';
+import { EvidenceGraphData } from '../../types';
 import { Card } from '../common/Card';
 
 interface EvidenceGraphViewerProps {
@@ -20,67 +20,81 @@ export const EvidenceGraphViewer: React.FC<EvidenceGraphViewerProps> = ({ graphD
     r => r.source === selectedNodeId || r.target === selectedNodeId
   );
 
-  const formatOffset = (ts: number) => {
-    const totalSec = Math.floor(ts / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = totalSec % 60;
-    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  const nodeTone = (type: string) => {
+    switch (type) {
+      case 'RISK_CONTRIBUTION':
+        return 'border-rose-200 bg-rose-50/60 text-rose-800';
+      case 'QUESTION':
+        return 'border-brand-200 bg-brand-50/60 text-brand-800';
+      case 'FUSION':
+        return 'border-amber-200 bg-amber-50/60 text-amber-900';
+      default:
+        return 'border-slate-200 bg-slate-50 text-slate-600';
+    }
   };
 
   return (
     <Card
-      title="Monochrome Evidence Graph"
-      subtitle="Interactive causal link map tracing review priority to observable evidence"
+      title="Causal evidence graph"
+      subtitle="Trace review priority back to observable telemetry"
       badge={
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-[10px] font-mono font-semibold">
+        <span className="data inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600 whitespace-nowrap">
           <Network className="w-3 h-3" />
-          <span>{graphData.nodes.length} NODES • {graphData.relationships.length} EDGES</span>
-        </div>
+          {graphData.nodes.length} nodes · {graphData.relationships.length} edges
+        </span>
       }
       className={className}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Visual Graph Canvas & Node Selector */}
+        {/* Node canvas */}
         <div className="lg:col-span-8 space-y-4">
-          <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850">
-            <div className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 mb-3 flex items-center justify-between">
-              <span>Observable Telemetry Nodes (Click Node to Inspect)</span>
-              <span>Monochrome High-Contrast Graph</span>
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+              <span className="eyebrow">Observable telemetry nodes</span>
+              <span className="text-[11.5px] text-slate-400">Select a node to inspect</span>
             </div>
 
-            {/* Nodes Grid Layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {graphData.nodes.map(node => {
                 const isSelected = node.id === selectedNodeId;
-                const isRoot = node.type === 'RISK_CONTRIBUTION';
-                const isQuestion = node.type === 'QUESTION';
 
                 return (
                   <button
                     key={node.id}
                     onClick={() => setSelectedNodeId(node.id)}
-                    className={`p-3 rounded-md text-left transition-all duration-150 border flex flex-col justify-between ${
+                    aria-pressed={isSelected}
+                    className={`rounded-md border p-3 text-left transition-colors ${
                       isSelected
-                        ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-sm ring-1 ring-black dark:ring-white'
-                        : 'bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
+                        ? 'border-slate-900 bg-slate-900 text-white'
+                        : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50'
                     }`}
                   >
-                    <div>
-                      <div className="flex items-center justify-between text-[10px] font-mono mb-1">
-                        <span className={`px-1.5 py-0.2 rounded border ${
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`rounded-[3px] border px-1.5 py-0.5 text-[10px] uppercase tracking-[0.04em] ${
                           isSelected
-                            ? 'border-white/30 text-white dark:border-black/30 dark:text-black'
-                            : 'border-neutral-200 dark:border-neutral-800 text-neutral-500'
-                        }`}>
-                          {node.type}
-                        </span>
-                        <span>{Math.round(node.confidence * 100)}% CONF</span>
-                      </div>
-                      <div className="font-bold text-xs leading-tight tracking-tight mt-1">
-                        {node.label}
-                      </div>
+                            ? 'border-white/25 text-slate-300'
+                            : nodeTone(node.type).split(' ').slice(0, 2).join(' ')
+                        }`}
+                      >
+                        {node.type}
+                      </span>
+                      <span
+                        className={`data text-[10.5px] ${
+                          isSelected ? 'text-slate-400' : 'text-slate-500'
+                        }`}
+                      >
+                        {Math.round(node.confidence * 100)}%
+                      </span>
                     </div>
-                    <div className="mt-2 text-[10px] font-mono opacity-80 truncate">
+                    <div className="mt-1.5 text-[12.5px] font-semibold leading-snug">
+                      {node.label}
+                    </div>
+                    <div
+                      className={`mt-1.5 text-[11.5px] leading-snug line-clamp-2 ${
+                        isSelected ? 'text-slate-300' : 'text-slate-500'
+                      }`}
+                    >
                       {node.details}
                     </div>
                   </button>
@@ -88,26 +102,26 @@ export const EvidenceGraphViewer: React.FC<EvidenceGraphViewerProps> = ({ graphD
               })}
             </div>
 
-            {/* Relationships Table */}
-            <div className="mt-4 pt-3 border-t border-neutral-200 dark:border-neutral-850 space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
-                Evidence Relationship Links ({graphData.relationships.length})
+            {/* Relationship links */}
+            <div className="mt-4 pt-3 border-t border-slate-200 space-y-2">
+              <span className="eyebrow">
+                Evidence relationship links ({graphData.relationships.length})
               </span>
               <div className="space-y-1.5">
                 {graphData.relationships.slice(0, 5).map(rel => (
                   <div
                     key={rel.id}
-                    className="p-2 rounded bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[11px] font-mono flex items-center justify-between gap-2"
+                    className="flex items-center justify-between gap-2 rounded-md border border-slate-200 bg-white px-2.5 py-2"
                   >
-                    <div className="flex items-center gap-1.5 truncate">
-                      <Link2 className="w-3 h-3 text-neutral-400 flex-shrink-0" />
-                      <span className="font-semibold text-neutral-900 dark:text-neutral-100">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <Link2 className="w-3 h-3 text-slate-400 flex-shrink-0" />
+                      <span className="text-[12px] font-medium text-slate-900 truncate">
                         {rel.relationshipType}
                       </span>
-                      <span className="text-neutral-500 truncate">({rel.label})</span>
+                      <span className="text-[11.5px] text-slate-500 truncate">({rel.label})</span>
                     </div>
-                    <span className="text-[10px] text-neutral-400 font-mono flex-shrink-0">
-                      STR: {rel.strength.toFixed(2)}
+                    <span className="data text-[11px] text-slate-500 flex-shrink-0">
+                      {rel.strength.toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -116,67 +130,66 @@ export const EvidenceGraphViewer: React.FC<EvidenceGraphViewerProps> = ({ graphD
           </div>
         </div>
 
-        {/* Right Column: Node Details Inspector */}
+        {/* Node inspector */}
         <div className="lg:col-span-4 space-y-4">
           {selectedNode ? (
-            <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-3.5">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400">
-                  Node Inspector
-                </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-black text-white dark:bg-white dark:text-black">
+            <div className="panel-inset bg-white space-y-3.5">
+              <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                <span className="eyebrow">Node inspector</span>
+                <span className="rounded-[3px] bg-slate-900 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.04em] text-white">
                   {selectedNode.type}
                 </span>
               </div>
 
               <div>
-                <h4 className="font-bold text-sm text-neutral-950 dark:text-white leading-tight">
+                <h3 className="text-[14px] font-semibold text-slate-900 leading-snug">
                   {selectedNode.label}
-                </h4>
-                <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 leading-relaxed">
+                </h3>
+                <p className="text-[12.5px] text-slate-600 mt-1.5 leading-relaxed">
                   {selectedNode.details}
                 </p>
               </div>
 
-              <div className="space-y-1.5 text-xs font-mono pt-2 border-t border-neutral-200 dark:border-neutral-800">
-                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
-                  <span>Confidence:</span>
-                  <strong className="text-neutral-950 dark:text-white">{Math.round(selectedNode.confidence * 100)}%</strong>
-                </div>
-                <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
-                  <span>Mathematical Weight:</span>
-                  <strong className="text-neutral-950 dark:text-white">{selectedNode.weight} pts</strong>
-                </div>
-                {selectedNode.category && (
-                  <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
-                    <span>Modality Category:</span>
-                    <strong className="text-neutral-950 dark:text-white capitalize">{selectedNode.category}</strong>
+              <dl className="space-y-2 pt-3 border-t border-slate-200">
+                {[
+                  { label: 'Confidence', value: `${Math.round(selectedNode.confidence * 100)}%` },
+                  { label: 'Mathematical weight', value: `${selectedNode.weight} pts` },
+                  ...(selectedNode.category
+                    ? [{ label: 'Modality category', value: selectedNode.category }]
+                    : []),
+                  ...(selectedNode.relatedQuestionNumber
+                    ? [
+                        {
+                          label: 'Correlated question',
+                          value: `Question ${selectedNode.relatedQuestionNumber}`,
+                        },
+                      ]
+                    : []),
+                ].map(row => (
+                  <div key={row.label} className="flex items-center justify-between gap-3">
+                    <dt className="text-[12px] text-slate-500">{row.label}</dt>
+                    <dd className="data text-[12.5px] font-medium text-slate-900 capitalize truncate">
+                      {row.value}
+                    </dd>
                   </div>
-                )}
-                {selectedNode.relatedQuestionNumber && (
-                  <div className="flex justify-between text-neutral-600 dark:text-neutral-400">
-                    <span>Correlated Question:</span>
-                    <strong className="text-neutral-950 dark:text-white">Question {selectedNode.relatedQuestionNumber}</strong>
-                  </div>
-                )}
-              </div>
+                ))}
+              </dl>
 
-              {/* Connected Relationships for this node */}
-              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 space-y-1.5">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
-                  Active Links ({connectedRelationships.length})
-                </span>
+              <div className="pt-3 border-t border-slate-200 space-y-2">
+                <span className="eyebrow">Active links ({connectedRelationships.length})</span>
                 {connectedRelationships.length === 0 ? (
-                  <span className="text-[11px] text-neutral-400">No active links</span>
+                  <span className="text-[12px] text-slate-500">No active links.</span>
                 ) : (
-                  <div className="space-y-1">
+                  <div className="space-y-1.5">
                     {connectedRelationships.map(r => (
                       <div
                         key={r.id}
-                        className="text-[11px] text-neutral-700 dark:text-neutral-300 p-2 rounded bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-800"
+                        className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-2"
                       >
-                        <div className="font-semibold text-black dark:text-white">{r.relationshipType}</div>
-                        <div className="text-[10px] text-neutral-500 mt-0.5">{r.label}</div>
+                        <div className="text-[12px] font-medium text-slate-900">
+                          {r.relationshipType}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 mt-0.5">{r.label}</div>
                       </div>
                     ))}
                   </div>
@@ -184,24 +197,28 @@ export const EvidenceGraphViewer: React.FC<EvidenceGraphViewerProps> = ({ graphD
               </div>
             </div>
           ) : (
-            <div className="p-6 text-center text-xs text-neutral-400">Select a node to inspect evidence</div>
+            <div className="px-6 py-10 text-center text-[13px] text-slate-500">
+              Select a node to inspect its evidence.
+            </div>
           )}
 
-          {/* Factors Contribution Breakdown */}
-          <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
-              Signal Contribution Share
-            </span>
-            <div className="space-y-2 text-xs">
+          {/* Signal contribution share */}
+          <div className="panel-inset bg-white space-y-3">
+            <span className="eyebrow">Signal contribution share</span>
+            <div className="space-y-2.5">
               {graphData.contributions.map((c, idx) => (
-                <div key={idx} className="space-y-0.5">
-                  <div className="flex justify-between font-mono text-[11px]">
-                    <span className="text-neutral-800 dark:text-neutral-200 font-semibold">{c.name}</span>
-                    <span className="text-neutral-500">{c.percentageOfTotal}%</span>
+                <div key={idx} className="space-y-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[12.5px] font-medium text-slate-800 truncate">
+                      {c.name}
+                    </span>
+                    <span className="data text-[11.5px] text-slate-500">
+                      {c.percentageOfTotal}%
+                    </span>
                   </div>
-                  <div className="h-1.5 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
                     <div
-                      className="h-full bg-black dark:bg-white rounded-full transition-all"
+                      className="h-full rounded-full bg-brand-700 transition-[width] duration-300"
                       style={{ width: `${Math.min(100, c.percentageOfTotal)}%` }}
                     />
                   </div>

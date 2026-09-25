@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'academic';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'academic' | 'onDark';
   size?: 'sm' | 'md' | 'lg';
   icon?: React.ReactNode;
   isLoading?: boolean;
@@ -18,27 +18,29 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-neutral-400 disabled:opacity-40 disabled:pointer-events-none rounded-md select-none tracking-tight';
+    'inline-flex items-center justify-center gap-2 font-medium whitespace-nowrap select-none rounded-md transition-colors duration-150 disabled:opacity-45 disabled:pointer-events-none';
 
   const sizeClasses = {
-    sm: 'text-xs px-2.5 py-1.5 gap-1.5',
-    md: 'text-xs sm:text-sm px-3.5 py-2 gap-2',
-    lg: 'text-sm px-5 py-2.5 gap-2.5 font-semibold',
+    sm: 'h-8 px-3 text-[13px] gap-1.5',
+    md: 'h-9 px-3.5 text-sm',
+    lg: 'h-10 px-4 text-sm',
   };
 
   const variantClasses = {
     primary:
-      'bg-neutral-950 text-white hover:bg-neutral-800 dark:bg-white dark:text-black dark:hover:bg-neutral-200 border border-neutral-950 dark:border-white shadow-2xs',
-    secondary:
-      'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-850 border border-neutral-200 dark:border-neutral-800',
-    outline:
-      'border border-neutral-300 dark:border-neutral-800 bg-transparent text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-900',
-    danger:
-      'bg-neutral-900 text-white dark:bg-white dark:text-black border border-neutral-700 font-semibold',
-    ghost:
-      'bg-transparent text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-900',
+      'bg-brand-800 text-white hover:bg-brand-900 border border-brand-800 shadow-xs',
     academic:
-      'bg-black text-white hover:bg-neutral-900 dark:bg-white dark:text-black dark:hover:bg-neutral-100 border border-neutral-800 dark:border-neutral-300 font-semibold shadow-2xs',
+      'bg-slate-900 text-white hover:bg-slate-800 border border-slate-900 shadow-xs',
+    secondary:
+      'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-200',
+    outline:
+      'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 border border-slate-300',
+    danger:
+      'bg-rose-600 text-white hover:bg-rose-700 border border-rose-600 font-medium',
+    ghost:
+      'bg-transparent text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+    onDark:
+      'bg-transparent text-white border border-white/25 hover:bg-white/10 hover:border-white/40',
   };
 
   return (

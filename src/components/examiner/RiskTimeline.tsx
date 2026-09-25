@@ -1,5 +1,6 @@
 import React from 'react';
 import { RiskTimelinePoint } from '../../types';
+import { StatusBadge } from '../common/StatusBadge';
 
 interface RiskTimelineProps {
   timeline: RiskTimelinePoint[];
@@ -9,31 +10,30 @@ interface RiskTimelineProps {
 export const RiskTimeline: React.FC<RiskTimelineProps> = ({ timeline, className = '' }) => {
   if (!timeline || timeline.length === 0) {
     return (
-      <div className="text-xs text-neutral-400 py-4 text-center font-mono">
+      <div className="py-8 text-center text-[13px] text-slate-500">
         No timeline intervals recorded yet.
       </div>
     );
   }
 
-  const getMonochromeBarClass = (score: number) => {
-    if (score >= 65) return 'bg-black dark:bg-white border-t-2 border-black dark:border-white';
-    if (score >= 40) return 'bg-neutral-700 dark:bg-neutral-300';
-    if (score >= 20) return 'bg-neutral-500 dark:bg-neutral-500';
-    return 'bg-neutral-300 dark:bg-neutral-700';
+  const getBarClass = (score: number) => {
+    if (score >= 65) return 'bg-rose-600';
+    if (score >= 40) return 'bg-amber-500';
+    if (score >= 20) return 'bg-brand-600';
+    return 'bg-slate-300';
   };
 
-  const getBadgeClass = (level: string) => {
+  const getLevelVariant = (level: string) => {
     switch (level) {
       case 'REVIEW':
       case 'HIGH':
-        return 'bg-black text-white dark:bg-white dark:text-black font-extrabold border border-black dark:border-white';
+        return 'high' as const;
       case 'MEDIUM':
-        return 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black font-bold';
+        return 'elevated' as const;
       case 'LOW':
-        return 'bg-neutral-200 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-200 font-medium';
-      case 'NORMAL':
+        return 'info' as const;
       default:
-        return 'bg-neutral-100 text-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 font-normal';
+        return 'neutral' as const;
     }
   };
 
@@ -41,63 +41,66 @@ export const RiskTimeline: React.FC<RiskTimelineProps> = ({ timeline, className 
 
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Visual Density Bar Chart */}
-      <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850">
-        <div className="flex items-center justify-between text-xs font-mono text-neutral-500 mb-2">
-          <span>REVIEW PRIORITY TRAJECTORY (SLIDING 30S WINDOW)</span>
-          <span>PEAK: {peakScore} PTS</span>
+      {/* Trajectory chart */}
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <span className="eyebrow">Review priority trajectory · 30s sliding window</span>
+          <span className="data text-[11.5px] text-slate-500">
+            Peak {peakScore} pts
+          </span>
         </div>
 
-        <div className="h-28 flex items-end gap-1.5 sm:gap-2 pt-4 pb-1 border-b border-neutral-200 dark:border-neutral-800">
+        <div className="h-28 flex items-end gap-1 sm:gap-1.5 pt-4 border-b border-slate-200">
           {timeline.map((point, idx) => {
             const heightPercent = Math.max(8, point.score);
             return (
               <div
                 key={idx}
-                className="flex-1 flex flex-col items-center gap-1 group relative h-full justify-end"
+                className="group relative flex-1 h-full flex flex-col items-center justify-end gap-1"
               >
-                {/* Tooltip on hover */}
-                <div className="absolute -top-12 z-20 hidden group-hover:flex flex-col items-center bg-black dark:bg-white text-white dark:text-black text-[10px] font-mono px-2 py-1 rounded shadow-md whitespace-nowrap pointer-events-none border border-neutral-700">
-                  <span className="font-bold">{point.formattedTime} • Score {point.score} pts</span>
-                  <span className="opacity-80 text-[9px]">{point.level} ({point.primarySignal})</span>
+                <div className="absolute -top-2 z-20 hidden group-hover:flex flex-col items-center rounded-md bg-slate-900 px-2 py-1 text-slate-100 text-[10.5px] whitespace-nowrap pointer-events-none shadow-md">
+                  <span className="data font-semibold">
+                    {point.formattedTime} · {point.score} pts
+                  </span>
+                  <span className="text-slate-400 text-[10px]">
+                    {point.level} ({point.primarySignal})
+                  </span>
                 </div>
 
                 <div
-                  className={`w-full rounded-t transition-all duration-300 ${getMonochromeBarClass(
+                  className={`w-full rounded-t-[2px] transition-[height] duration-300 ${getBarClass(
                     point.score
                   )}`}
                   style={{ height: `${heightPercent}%` }}
                 />
-                <span className="text-[10px] font-mono text-neutral-400 truncate max-w-full">
-                  {point.formattedTime}
-                </span>
               </div>
             );
           })}
         </div>
+
+        <div className="flex items-center justify-between mt-2">
+          <span className="data text-[11px] text-slate-400">{timeline[0].formattedTime}</span>
+          <span className="data text-[11px] text-slate-400">
+            {timeline[timeline.length - 1].formattedTime}
+          </span>
+        </div>
       </div>
 
-      {/* Chronological Step List */}
+      {/* Chronological step list */}
       <div className="overflow-x-auto">
-        <div className="flex items-center gap-2 min-w-max pb-2">
+        <div className="flex items-stretch gap-2 min-w-max pb-1">
           {timeline.map((point, idx) => (
             <div
               key={idx}
-              className="flex items-center gap-2 p-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-xs font-mono shadow-2xs"
+              className="flex items-center gap-2.5 rounded-md border border-slate-200 bg-white px-3 py-2.5"
             >
-              <div className="font-bold text-neutral-800 dark:text-neutral-200">
+              <span className="data text-[11.5px] font-semibold text-slate-900">
                 {point.formattedTime}
-              </div>
-              <span
-                className={`px-1.5 py-0.2 rounded text-[10px] ${getBadgeClass(
-                  point.level
-                )}`}
-              >
-                {point.level}
               </span>
-              <span className="font-bold text-black dark:text-white">{point.score} pts</span>
+              <StatusBadge status={point.level} variant={getLevelVariant(point.level)} size="sm" />
+              <span className="data text-[12px] font-semibold text-slate-900">{point.score} pts</span>
               {point.primarySignal && (
-                <span className="text-neutral-500 text-[11px] max-w-[120px] truncate">
+                <span className="text-[11.5px] text-slate-500 max-w-[120px] truncate">
                   {point.primarySignal}
                 </span>
               )}

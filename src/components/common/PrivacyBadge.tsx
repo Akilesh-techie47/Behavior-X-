@@ -10,11 +10,11 @@ export const PrivacyBadge: React.FC<{ className?: string }> = ({ className = '' 
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-semibold text-black dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors shadow-2xs ${className}`}
+        className={`inline-flex items-center gap-1.5 h-8 px-3 text-[13px] font-medium rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors ${className}`}
         title="Click to view our privacy architecture"
       >
-        <ShieldCheck className="w-3.5 h-3.5" />
-        <span>Privacy Shield</span>
+        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+        <span className="hidden xl:inline">Privacy Shield</span>
       </button>
 
       <Modal
@@ -29,35 +29,45 @@ export const PrivacyBadge: React.FC<{ className?: string }> = ({ className = '' 
           </Button>
         }
       >
-        <div className="space-y-4 text-xs text-neutral-800 dark:text-neutral-200 leading-relaxed">
-          <div className="p-3.5 rounded-md bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-start gap-3">
-            <Cpu className="w-5 h-5 text-black dark:text-white flex-shrink-0 mt-0.5" />
+        <div className="space-y-5 text-[13px] text-slate-700 leading-relaxed">
+          <div className="panel-inset p-4 flex items-start gap-3 bg-white">
+            <Cpu className="w-[18px] h-[18px] text-brand-700 flex-shrink-0 mt-0.5" />
             <div>
-              <h5 className="font-bold text-black dark:text-white text-xs">
+              <h5 className="font-semibold text-slate-900 text-sm">
                 Zero Video or Biometric Storage (0ms)
               </h5>
-              <p className="mt-1 text-xs text-neutral-600 dark:text-neutral-400">
+              <p className="mt-1 text-slate-600">
                 Webcam frames are analyzed transiently in volatile RAM for under 100ms and immediately discarded. No video recordings, biometric face embeddings, or demographic profiles are ever stored on disk or transmitted.
               </p>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h5 className="font-bold text-black dark:text-white text-xs uppercase tracking-wider">
-              Core Privacy Guarantees
-            </h5>
-            <ul className="list-disc pl-5 space-y-2 text-xs text-neutral-700 dark:text-neutral-300">
-              <li>
-                <strong>Observable Telemetry Only:</strong> The system records observable actions (e.g. looking away, browser tab hidden). It never infers guilt, internal mental states, or protected traits.
+          <div className="space-y-2.5">
+            <h5 className="eyebrow text-slate-700">Core Privacy Guarantees</h5>
+            <ul className="space-y-2.5 text-slate-700">
+              <li className="flex gap-2.5">
+                <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
+                <span>
+                  <strong className="font-semibold text-slate-900">Observable Telemetry Only:</strong> The system records observable actions (e.g. looking away, browser tab hidden). It never infers guilt, internal mental states, or protected traits.
+                </span>
               </li>
-              <li>
-                <strong>No Biometric Recognition:</strong> No identity verification models, facial vectors, or biometric templates are generated.
+              <li className="flex gap-2.5">
+                <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
+                <span>
+                  <strong className="font-semibold text-slate-900">No Biometric Recognition:</strong> No identity verification models, facial vectors, or biometric templates are generated.
+                </span>
               </li>
-              <li>
-                <strong>Explainable Evidence:</strong> Scores represent review priorities for human academic staff, supported by inspectable evidence graphs.
+              <li className="flex gap-2.5">
+                <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
+                <span>
+                  <strong className="font-semibold text-slate-900">Explainable Evidence:</strong> Scores represent review priorities for human academic staff, supported by inspectable evidence graphs.
+                </span>
               </li>
-              <li>
-                <strong>Human-in-the-Loop Sovereign:</strong> Certified examiners make all determinations. No student is ever automatically accused or penalized.
+              <li className="flex gap-2.5">
+                <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
+                <span>
+                  <strong className="font-semibold text-slate-900">Human-in-the-Loop Sovereign:</strong> Certified examiners make all determinations. No student is ever automatically accused or penalized.
+                </span>
               </li>
             </ul>
           </div>

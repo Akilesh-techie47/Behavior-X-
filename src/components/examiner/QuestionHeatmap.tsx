@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, Clock, AlertTriangle, CheckCircle2, ChevronRight, Bookmark } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { QuestionIntegrityItem } from '../../engine/questions/QuestionIntelligenceEngine';
 import { Card } from '../common/Card';
 import { RiskBadge } from '../common/StatusBadge';
@@ -28,112 +28,142 @@ export const QuestionHeatmap: React.FC<QuestionHeatmapProps> = ({
     }
   };
 
-  const getDensityVisual = (score: number) => {
-    if (score >= 70) return '██████████';
-    if (score >= 50) return '████████';
-    if (score >= 30) return '█████';
-    if (score >= 15) return '███';
-    return '█';
+  const densityTone = (score: number) => {
+    if (score >= 70) return { bar: 'bg-rose-600', text: 'text-rose-700', label: 'Review' };
+    if (score >= 50) return { bar: 'bg-amber-500', text: 'text-amber-700', label: 'High' };
+    if (score >= 30) return { bar: 'bg-brand-600', text: 'text-brand-700', label: 'Medium' };
+    if (score >= 15) return { bar: 'bg-sky-500', text: 'text-sky-700', label: 'Low' };
+    return { bar: 'bg-slate-300', text: 'text-slate-500', label: 'Nominal' };
   };
+
+  const legend = [
+    { label: 'Nominal', bar: 'bg-slate-300' },
+    { label: 'Low', bar: 'bg-sky-500' },
+    { label: 'Medium', bar: 'bg-brand-600' },
+    { label: 'High', bar: 'bg-amber-500' },
+    { label: 'Review', bar: 'bg-rose-600' },
+  ];
 
   return (
     <Card
-      title="Question Integrity Heatmap"
-      subtitle="Behavioral telemetry and response-time distribution mapped across all exam questions"
+      title="Question integrity heatmap"
+      subtitle="Response time and behavioral telemetry mapped across all questions"
       className={className}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-        {/* Left Column: Heatmap Grid */}
-        <div className="lg:col-span-7 space-y-3">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+        {/* Heatmap grid */}
+        <div className="lg:col-span-7 space-y-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2">
             {items.map(q => {
               const isSelected = q.questionId === selectedQuestionId;
-              const hasAnomaly = q.score >= 30;
+              const tone = densityTone(q.score);
 
               return (
                 <button
                   key={q.questionId}
                   onClick={() => handleSelect(q.questionId)}
-                  className={`p-3 rounded-md text-left transition-all duration-150 border flex flex-col justify-between ${
+                  aria-pressed={isSelected}
+                  className={`rounded-md border p-2.5 text-left transition-colors ${
                     isSelected
-                      ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white shadow-xs'
-                      : 'bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 border-neutral-200 dark:border-neutral-800 hover:border-neutral-400'
+                      ? 'border-slate-900 bg-slate-900 text-white'
+                      : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50'
                   }`}
                 >
-                  <div className="flex items-center justify-between text-[11px] font-mono mb-1">
-                    <span className="font-bold">Q{q.number}</span>
-                    <span className="text-[9px] uppercase tracking-wider">{q.difficulty}</span>
+                  <div className="flex items-center justify-between gap-1.5">
+                    <span className="data text-[11.5px] font-semibold">Q{q.number}</span>
+                    <span
+                      className={`text-[10px] uppercase tracking-[0.04em] ${
+                        isSelected ? 'text-slate-400' : 'text-slate-400'
+                      }`}
+                    >
+                      {q.difficulty}
+                    </span>
                   </div>
 
-                  <div className="my-1">
-                    <div className="font-mono text-[10px] tracking-tighter truncate opacity-80">
-                      {getDensityVisual(q.score)}
-                    </div>
+                  <div className="mt-2 h-1.5 rounded-full bg-black/10 overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${isSelected ? 'bg-white' : tone.bar}`}
+                      style={{ width: `${Math.min(100, q.score)}%` }}
+                    />
                   </div>
 
-                  <div className="text-[10px] font-mono mt-1 opacity-70 flex justify-between">
+                  <div
+                    className={`mt-2 data text-[10.5px] flex items-center justify-between ${
+                      isSelected ? 'text-slate-300' : 'text-slate-500'
+                    }`}
+                  >
                     <span>{q.responseTimeSec}s</span>
-                    <span>exp: {q.expectedTimeSec}s</span>
+                    <span>exp {q.expectedTimeSec}s</span>
                   </div>
                 </button>
               );
             })}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-200 dark:border-neutral-800 text-[11px] font-mono text-neutral-500">
-            <span>DENSITY: █ NOMINAL • ███ LOW • █████ MEDIUM • ████████ HIGH • ██████████ REVIEW</span>
-            <span>CLICK QUESTION TO INSPECT TELEMETRY</span>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 border-t border-slate-200">
+            {legend.map(item => (
+              <span key={item.label} className="inline-flex items-center gap-1.5 text-[11.5px] text-slate-500">
+                <span className={`w-2.5 h-2.5 rounded-[3px] ${item.bar}`} />
+                {item.label}
+              </span>
+            ))}
+            <span className="text-[11.5px] text-slate-400 ml-auto">
+              Select a question to inspect its telemetry
+            </span>
           </div>
         </div>
 
-        {/* Right Column: Selected Question Behavioral Details */}
+        {/* Selected question detail */}
         <div className="lg:col-span-5">
           {selectedItem ? (
-            <div className="p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-3">
-              <div className="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-2">
-                <div className="flex items-center gap-2">
-                  <span className="font-mono font-bold text-sm text-black dark:text-white">
-                    QUESTION {selectedItem.number}
+            <div className="panel-inset bg-white space-y-3.5">
+              <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-200">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="data text-[13px] font-semibold text-slate-900">
+                    Question {selectedItem.number}
                   </span>
-                  <span className="text-[10px] font-mono uppercase px-1.5 py-0.2 rounded border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-300">
+                  <span className="rounded-[3px] border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.04em] text-slate-500">
                     {selectedItem.difficulty}
                   </span>
                 </div>
                 <RiskBadge level={selectedItem.level} score={selectedItem.score} />
               </div>
 
-              <p className="text-xs text-neutral-800 dark:text-neutral-200 line-clamp-3 leading-relaxed">
+              <p className="text-[13px] text-slate-700 leading-relaxed line-clamp-3">
                 {selectedItem.prompt}
               </p>
 
-              <div className="grid grid-cols-2 gap-2 text-xs font-mono pt-2 border-t border-neutral-200 dark:border-neutral-800">
-                <div className="p-2 bg-white dark:bg-neutral-950 rounded border border-neutral-200 dark:border-neutral-800">
-                  <span className="text-[10px] text-neutral-500 block">ACTUAL RESPONSE TIME</span>
-                  <strong className="text-sm text-black dark:text-white">{selectedItem.responseTimeSec}s</strong>
-                </div>
-                <div className="p-2 bg-white dark:bg-neutral-950 rounded border border-neutral-200 dark:border-neutral-800">
-                  <span className="text-[10px] text-neutral-500 block">EXPECTED TIME</span>
-                  <strong className="text-sm text-neutral-700 dark:text-neutral-300">{selectedItem.expectedTimeSec}s</strong>
-                </div>
-                <div className="p-2 bg-white dark:bg-neutral-950 rounded border border-neutral-200 dark:border-neutral-800">
-                  <span className="text-[10px] text-neutral-500 block">ANSWER REVISIONS</span>
-                  <strong className="text-sm text-black dark:text-white">{selectedItem.answerChanges} change{selectedItem.answerChanges === 1 ? '' : 's'}</strong>
-                </div>
-                <div className="p-2 bg-white dark:bg-neutral-950 rounded border border-neutral-200 dark:border-neutral-800">
-                  <span className="text-[10px] text-neutral-500 block">COMPLETION STATE</span>
-                  <strong className="text-sm text-black dark:text-white">{selectedItem.isAnswered ? 'Submitted' : 'Pending'}</strong>
-                </div>
+              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-200">
+                {[
+                  { label: 'Response time', value: `${selectedItem.responseTimeSec}s` },
+                  { label: 'Expected time', value: `${selectedItem.expectedTimeSec}s` },
+                  {
+                    label: 'Answer revisions',
+                    value: `${selectedItem.answerChanges} change${
+                      selectedItem.answerChanges === 1 ? '' : 's'
+                    }`,
+                  },
+                  {
+                    label: 'Completion state',
+                    value: selectedItem.isAnswered ? 'Submitted' : 'Pending',
+                  },
+                ].map(stat => (
+                  <div key={stat.label} className="panel-inset bg-slate-50 px-3 py-2.5">
+                    <span className="eyebrow">{stat.label}</span>
+                    <div className="data text-[13.5px] font-semibold text-slate-900 mt-1">
+                      {stat.value}
+                    </div>
+                  </div>
+                ))}
               </div>
 
               {selectedItem.flags && selectedItem.flags.length > 0 && (
-                <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 space-y-1">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
-                    Observed Behavioral Flags:
-                  </span>
-                  <ul className="text-xs text-neutral-700 dark:text-neutral-300 space-y-1 font-mono">
+                <div className="pt-3 border-t border-slate-200 space-y-2">
+                  <span className="eyebrow">Observed behavioral flags</span>
+                  <ul className="space-y-1.5">
                     {selectedItem.flags.map((flag, idx) => (
-                      <li key={idx} className="flex items-center gap-1.5">
-                        <span>•</span>
+                      <li key={idx} className="flex items-start gap-1.5 text-[12.5px] text-slate-700">
+                        <Check className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                         <span>{flag}</span>
                       </li>
                     ))}
@@ -142,7 +172,9 @@ export const QuestionHeatmap: React.FC<QuestionHeatmapProps> = ({
               )}
             </div>
           ) : (
-            <div className="p-6 text-center text-xs text-neutral-400">Select a question to view telemetry</div>
+            <div className="px-6 py-10 text-center text-[13px] text-slate-500">
+              Select a question to view its telemetry.
+            </div>
           )}
         </div>
       </div>

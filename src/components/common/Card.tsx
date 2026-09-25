@@ -20,41 +20,41 @@ export const Card: React.FC<CardProps> = ({
   footer,
   className = '',
   headerClassName = '',
-  bodyClassName = '',
+  bodyClassName = 'p-5',
   badge,
 }) => {
   return (
-    <div
-      className={`bg-white dark:bg-neutral-950 border border-neutral-200 dark:border-neutral-850 rounded-lg shadow-2xs overflow-hidden transition-all duration-150 ${className}`}
+    <section
+      className={`bg-white border border-slate-200 rounded-lg shadow-xs overflow-hidden ${className}`}
     >
       {(title || subtitle || action || badge) && (
-        <div
-          className={`px-4 sm:px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-850 flex items-center justify-between gap-4 ${headerClassName}`}
+        <header
+          className={`flex items-center justify-between gap-4 px-5 py-3.5 border-b border-slate-200 bg-slate-50/70 rounded-t-lg ${headerClassName}`}
         >
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               {title && (
-                <h3 className="font-semibold text-neutral-900 dark:text-neutral-100 text-sm tracking-tight truncate">
+                <h3 className="text-sm font-semibold text-slate-900 tracking-[-0.01em] truncate">
                   {title}
                 </h3>
               )}
               {badge}
             </div>
             {subtitle && (
-              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 truncate font-normal">
+              <p className="text-[13px] text-slate-500 mt-0.5 truncate font-normal">
                 {subtitle}
               </p>
             )}
           </div>
           {action && <div className="flex-shrink-0">{action}</div>}
-        </div>
+        </header>
       )}
-      <div className={`p-4 sm:p-5 ${bodyClassName}`}>{children}</div>
+      <div className={bodyClassName}>{children}</div>
       {footer && (
-        <div className="px-4 sm:px-5 py-3 bg-neutral-50 dark:bg-neutral-900/60 border-t border-neutral-100 dark:border-neutral-850 text-xs text-neutral-600 dark:text-neutral-400">
+        <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 text-[13px] text-slate-600">
           {footer}
         </div>
       )}
-    </div>
+    </section>
   );
 };

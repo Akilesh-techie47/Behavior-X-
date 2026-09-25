@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, StepForward, StepBack, Clock, FastForward, CheckCircle2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, StepForward, StepBack } from 'lucide-react';
 import { ExamSession, BehaviorEvent, RiskState } from '../../types';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
@@ -80,23 +80,22 @@ export const SessionReplayViewer: React.FC<SessionReplayViewerProps> = ({ sessio
 
   return (
     <Card
-      title="Behavioral Session Replay"
-      subtitle="Replay structured exam telemetry, chronological risk changes, and question transitions without raw video"
+      title="Behavioral session replay"
+      subtitle="Replay structured exam telemetry and chronological risk changes without raw video"
       className={className}
     >
       <div className="space-y-4">
-        {/* Controls Bar */}
-        <div className="p-3.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2">
+        {/* Controls */}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               variant={isPlaying ? 'outline' : 'primary'}
               size="sm"
               onClick={handlePlayPause}
               icon={isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
             >
-              {isPlaying ? 'Pause Replay' : 'Play Timeline'}
+              {isPlaying ? 'Pause' : 'Play timeline'}
             </Button>
-
             <Button
               variant="outline"
               size="sm"
@@ -106,7 +105,6 @@ export const SessionReplayViewer: React.FC<SessionReplayViewerProps> = ({ sessio
             >
               Prev
             </Button>
-
             <Button
               variant="outline"
               size="sm"
@@ -116,7 +114,6 @@ export const SessionReplayViewer: React.FC<SessionReplayViewerProps> = ({ sessio
             >
               Next
             </Button>
-
             <Button
               variant="outline"
               size="sm"
@@ -127,84 +124,73 @@ export const SessionReplayViewer: React.FC<SessionReplayViewerProps> = ({ sessio
             </Button>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 font-mono text-[11px]">
-              <span className="text-neutral-500">SPEED:</span>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[12px] text-slate-500">Speed</span>
               {([1, 2, 4] as const).map(s => (
                 <button
                   key={s}
                   onClick={() => setSpeed(s)}
-                  className={`px-2 py-0.5 rounded text-xs transition-colors ${
-                    speed === s
-                      ? 'bg-black text-white dark:bg-white dark:text-black font-bold'
-                      : 'text-neutral-600 hover:text-black dark:text-neutral-400 dark:hover:text-white'
+                  aria-pressed={speed === s}
+                  className={`h-7 w-9 rounded-md data text-[12px] font-medium transition-colors ${
+                    speed === s ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100'
                   }`}
                 >
-                  {s}x
+                  {s}×
                 </button>
               ))}
             </div>
-
-            <div className="font-mono text-[11px] text-neutral-500">
-              EVENT <strong>{events.length > 0 ? currentEventIndex + 1 : 0}</strong> OF <strong>{events.length}</strong>
-            </div>
+            <span className="data text-[11.5px] text-slate-500">
+              Event {events.length > 0 ? currentEventIndex + 1 : 0} of {events.length}
+            </span>
           </div>
         </div>
 
-        {/* Scrub / Progress Bar */}
+        {/* Progress */}
         <div className="space-y-1.5">
-          <div className="flex justify-between text-[11px] font-mono text-neutral-500">
-            <span>SESSION REPLAY CHRONOLOGY</span>
-            <span>{progressPct}% COMPLETED</span>
+          <div className="flex items-center justify-between text-[11.5px] text-slate-500">
+            <span>Session replay chronology</span>
+            <span className="data">{progressPct}%</span>
           </div>
-          <div className="h-2 bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden">
+          <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
             <div
-              className="h-full bg-black dark:bg-white rounded-full transition-all duration-300"
+              className="h-full rounded-full bg-brand-700 transition-[width] duration-300 ease-out"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
 
-        {/* Live Replay Frame */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 pt-1">
-          {/* Active Risk at this timestamp */}
-          <div className="md:col-span-4 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-3 font-mono">
-            <span className="text-[10px] uppercase tracking-wider text-neutral-400 block">
-              Synchronized State at Timestamp
-            </span>
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-2xl font-bold text-black dark:text-white">
+        {/* Replay frame */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-4 panel-inset bg-white space-y-3">
+            <span className="eyebrow">State at this timestamp</span>
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-baseline gap-1.5">
+                <span className="data text-[24px] font-semibold leading-none text-slate-900">
                   {activeRisk.currentScore}
                 </span>
-                <span className="text-xs text-neutral-500 ml-1">/ 100 PTS</span>
+                <span className="data text-[11.5px] text-slate-400">/ 100</span>
               </div>
               <RiskBadge level={activeRisk.level} />
             </div>
-
-            <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 space-y-1 text-[11px] text-neutral-600 dark:text-neutral-400">
-              <div className="flex justify-between">
-                <span>Active Window:</span>
-                <strong className="text-black dark:text-white">30 seconds</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Observed Cues:</span>
-                <strong className="text-black dark:text-white">{visibleEvents.length} total</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Status:</span>
-                <strong className="text-black dark:text-white">{isPlaying ? 'Playing' : 'Paused'}</strong>
-              </div>
-            </div>
+            <dl className="pt-3 border-t border-slate-200 space-y-2">
+              {[
+                { label: 'Active window', value: '30 seconds' },
+                { label: 'Observed cues', value: `${visibleEvents.length} total` },
+                { label: 'Status', value: isPlaying ? 'Playing' : 'Paused' },
+              ].map(row => (
+                <div key={row.label} className="flex items-center justify-between gap-3">
+                  <dt className="text-[12px] text-slate-500">{row.label}</dt>
+                  <dd className="text-[12.5px] font-medium text-slate-900">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
 
-          {/* Current Event Callout */}
           <div className="md:col-span-8">
             {currentEvent ? (
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-neutral-400 block">
-                  Active Event In Replay
-                </span>
+                <span className="eyebrow">Active event in replay</span>
                 <EventIndicator
                   type={currentEvent.type}
                   timestampMs={currentEvent.timestamp}
@@ -214,7 +200,7 @@ export const SessionReplayViewer: React.FC<SessionReplayViewerProps> = ({ sessio
                 />
               </div>
             ) : (
-              <div className="p-8 text-center text-xs text-neutral-400 rounded-lg border border-dashed border-neutral-300 dark:border-neutral-800">
+              <div className="rounded-md border border-dashed border-slate-300 px-6 py-10 text-center text-[13px] text-slate-500">
                 No events recorded in this session.
               </div>
             )}

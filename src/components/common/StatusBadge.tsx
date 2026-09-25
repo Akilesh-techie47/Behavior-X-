@@ -16,43 +16,48 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   pulse = false,
   className = '',
 }) => {
+  // Semantic, low-saturation treatments: a soft tinted field, a single hairline
+  // ring and one solid dot. Colour is reserved for meaning only.
   const variantStyles = {
-    nominal: 'bg-neutral-100 text-neutral-700 border-neutral-300 dark:bg-neutral-900 dark:text-neutral-300 dark:border-neutral-800',
-    success: 'bg-neutral-100 text-neutral-700 border-neutral-300 dark:bg-neutral-900 dark:text-neutral-300 dark:border-neutral-800',
-    low: 'bg-neutral-150 text-neutral-800 border-neutral-300 dark:bg-neutral-850 dark:text-neutral-200 dark:border-neutral-700',
-    info: 'bg-neutral-100 text-neutral-800 border-neutral-300 dark:bg-neutral-900 dark:text-neutral-200 dark:border-neutral-800',
-    elevated: 'bg-neutral-200 text-neutral-900 border-neutral-400 dark:bg-neutral-800 dark:text-neutral-100 dark:border-neutral-700 font-semibold',
-    high: 'bg-neutral-900 text-white border-neutral-900 dark:bg-neutral-100 dark:text-black dark:border-white font-bold',
-    review: 'bg-black text-white border-2 border-black dark:bg-white dark:text-black dark:border-white font-extrabold uppercase',
-    neutral: 'bg-neutral-100 text-neutral-600 border-neutral-200 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800',
+    nominal:
+      'bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20',
+    success:
+      'bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20',
+    low: 'bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-300',
+    info: 'bg-sky-50 text-sky-800 ring-1 ring-inset ring-sky-600/20',
+    elevated:
+      'bg-amber-50 text-amber-900 ring-1 ring-inset ring-amber-600/25',
+    high: 'bg-rose-50 text-rose-800 ring-1 ring-inset ring-rose-600/25',
+    review: 'bg-brand-900 text-white ring-1 ring-inset ring-brand-900',
+    neutral: 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200',
   };
 
   const dotStyles = {
-    nominal: 'bg-neutral-400 dark:bg-neutral-600',
-    success: 'bg-neutral-500 dark:bg-neutral-500',
-    low: 'bg-neutral-500 dark:bg-neutral-400',
-    info: 'bg-neutral-600 dark:bg-neutral-400',
-    elevated: 'bg-neutral-700 dark:bg-neutral-300',
-    high: 'bg-white dark:bg-black',
-    review: 'bg-white dark:bg-black',
-    neutral: 'bg-neutral-400',
+    nominal: 'bg-emerald-600',
+    success: 'bg-emerald-600',
+    low: 'bg-slate-400',
+    info: 'bg-sky-600',
+    elevated: 'bg-amber-600',
+    high: 'bg-rose-600',
+    review: 'bg-white',
+    neutral: 'bg-slate-400',
   };
 
   const sizeStyles = {
-    sm: 'text-[10px] px-2 py-0.5 font-medium tracking-wide',
-    md: 'text-xs px-2.5 py-1 font-medium tracking-wide',
+    sm: 'text-[11px] px-2 py-[3px] gap-1.5',
+    md: 'text-xs px-2.5 py-1 gap-1.5',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-md border ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      className={`inline-flex items-center rounded-full ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
     >
       <span
-        className={`w-1.5 h-1.5 rounded-full ${dotStyles[variant]} ${
+        className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotStyles[variant]} ${
           pulse ? 'animate-pulse' : ''
         }`}
       />
-      <span>{status}</span>
+      <span className="whitespace-nowrap">{status}</span>
     </span>
   );
 };

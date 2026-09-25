@@ -27,13 +27,14 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
     md: 'h-2.5',
   };
 
+  // A measured ramp: the bar itself carries the meaning, so the track stays quiet.
   const colorClasses: Record<string, string> = {
-    default: 'bg-neutral-900 dark:bg-neutral-100',
-    emerald: 'bg-neutral-400 dark:bg-neutral-500',
-    amber: 'bg-neutral-600 dark:bg-neutral-400',
-    rose: 'bg-neutral-800 dark:bg-neutral-200',
-    indigo: 'bg-black dark:bg-white',
-    monochrome: 'bg-black dark:bg-white',
+    default: 'bg-brand-700',
+    monochrome: 'bg-slate-700',
+    emerald: 'bg-emerald-600',
+    amber: 'bg-amber-500',
+    rose: 'bg-rose-600',
+    indigo: 'bg-brand-800',
   };
 
   const selectedColor = colorClasses[color] || colorClasses.default;
@@ -41,14 +42,20 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className={`w-full ${className}`}>
       {(label || showPercent) && (
-        <div className="flex justify-between items-center text-xs text-neutral-600 dark:text-neutral-400 mb-1 font-medium tracking-tight">
+        <div className="flex justify-between items-center text-[12px] text-slate-500 mb-1.5 font-medium">
           {label && <span>{label}</span>}
-          {showPercent && <span className="font-mono">{Math.round(percentage)}%</span>}
+          {showPercent && <span className="data">{Math.round(percentage)}%</span>}
         </div>
       )}
-      <div className={`w-full bg-neutral-200 dark:bg-neutral-850 rounded-full overflow-hidden ${sizeClasses[size]}`}>
+      <div
+        className={`w-full bg-slate-200 rounded-full overflow-hidden ${sizeClasses[size]}`}
+        role="progressbar"
+        aria-valuenow={Math.round(percentage)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
         <div
-          className={`${selectedColor} ${sizeClasses[size]} rounded-full transition-all duration-300 ease-out`}
+          className={`${selectedColor} ${sizeClasses[size]} rounded-full transition-[width] duration-300 ease-out`}
           style={{ width: `${percentage}%` }}
         />
       </div>

@@ -31,10 +31,15 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
     }
   }, [cameraState.stream, attachVideoElement]);
 
+  const isLive = cameraState.status === 'active' && !!cameraState.stream;
+
+  /* Compact variant — used where the feed only needs to be present, not inspected. */
   if (minimal) {
     return (
-      <div className={`relative rounded-lg overflow-hidden bg-neutral-950 border border-neutral-800 aspect-video shadow-xs ${className}`}>
-        {cameraState.status === 'active' && cameraState.stream ? (
+      <div
+        className={`relative overflow-hidden rounded-md bg-slate-900 border border-slate-800 aspect-video ${className}`}
+      >
+        {isLive ? (
           <video
             ref={videoRef}
             autoPlay
@@ -44,22 +49,26 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
             aria-label="Student camera preview"
           />
         ) : (
-          <div className="w-full h-full flex flex-col items-center justify-center p-3 text-neutral-400 text-center">
-            <CameraOff className="w-5 h-5 mb-1 text-neutral-500" />
-            <span className="text-[10px] tracking-tight">Camera Offline</span>
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 p-3 text-center">
+            <CameraOff className="w-4 h-4 text-slate-500" />
+            <span className="text-[11px] text-slate-400">Camera offline</span>
             {onRequestCamera && (
               <button
                 onClick={onRequestCamera}
-                className="mt-1 text-[10px] text-white underline"
+                className="text-[11px] font-medium text-slate-200 underline underline-offset-2 hover:text-white"
               >
                 Reconnect
               </button>
             )}
           </div>
         )}
-        <div className="absolute top-2 left-2 flex items-center gap-1.5 px-2 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-white border border-neutral-700">
-          <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-          <span>TRANSIENT RAM • 0ms RETENTION</span>
+        <div className="absolute top-2 left-2 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-[3px] bg-slate-950/70 ring-1 ring-inset ring-white/10 text-[10px] font-medium text-white">
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${
+              isLive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'
+            }`}
+          />
+          <span>Transient RAM · 0ms retention</span>
         </div>
       </div>
     );
@@ -67,9 +76,9 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
 
   return (
     <div
-      className={`relative rounded-lg overflow-hidden bg-neutral-950 border border-neutral-800 shadow-md flex flex-col items-center justify-center aspect-video ${className}`}
+      className={`relative overflow-hidden rounded-lg bg-slate-900 border border-slate-800 flex flex-col items-center justify-center aspect-video ${className}`}
     >
-      {cameraState.status === 'active' && cameraState.stream ? (
+      {isLive ? (
         <>
           <video
             ref={videoRef}
@@ -80,76 +89,74 @@ export const CameraPreview: React.FC<CameraPreviewProps> = ({
             aria-label="Active student webcam video preview"
           />
           {showOverlay && (
-            <div className="absolute inset-0 pointer-events-none border border-neutral-800 rounded-lg flex flex-col justify-between p-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-black/85 backdrop-blur-md text-[11px] font-mono text-white border border-neutral-700 shadow-2xs">
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                  <span>EDGE TELEMETRY: ACTIVE</span>
+            <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-3">
+              {/* Status rail */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[4px] bg-slate-950/70 ring-1 ring-inset ring-white/10 text-[11px] font-medium text-white">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Edge telemetry active</span>
                 </div>
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-black/85 backdrop-blur-md text-[11px] font-mono text-neutral-300 border border-neutral-700">
-                  <Shield className="w-3.5 h-3.5 text-white" />
-                  <span>0ms Video Storage</span>
+                <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-[4px] bg-slate-950/70 ring-1 ring-inset ring-white/10 text-[11px] font-medium text-slate-200">
+                  <Shield className="w-3 h-3 text-emerald-400" />
+                  <span>0ms video storage</span>
                 </div>
               </div>
 
-              {/* Subdued perimeter target bounding guide */}
-              <div className="self-center w-48 h-56 border border-dashed border-neutral-500/60 rounded-2xl flex flex-col items-center justify-center gap-2 bg-black/20 backdrop-blur-[0.5px]">
-                <div className="w-14 h-14 rounded-full border border-neutral-400/50 flex items-center justify-center text-neutral-300 font-mono text-xs">
+              {/* Framing guide */}
+              <div className="self-center w-40 h-48 sm:w-44 sm:h-52 border border-dashed border-white/20 rounded-lg flex flex-col items-center justify-center gap-2.5">
+                <div className="w-11 h-11 rounded-full border border-white/20 flex items-center justify-center text-[9px] font-medium tracking-[0.08em] text-white/50">
                   FACE
                 </div>
-                <span className="text-[10px] font-mono text-neutral-300 tracking-wider font-semibold uppercase">
-                  Subject Perimeter
+                <span className="text-[10px] font-medium tracking-[0.08em] text-white/50 uppercase">
+                  Subject perimeter
                 </span>
               </div>
 
-              <div className="flex items-center justify-between text-[10px] font-mono text-neutral-300 px-2 py-1 rounded bg-black/75 backdrop-blur-xs">
-                <span>FPS: 15 (VOLATILE CANVAS)</span>
-                <span>BIOMETRICS: DISABLED</span>
+              {/* Telemetry footer */}
+              <div className="flex items-center justify-between gap-2 px-2 py-1 rounded-[4px] bg-slate-950/60 ring-1 ring-inset ring-white/5 data text-[10px] text-slate-300">
+                <span>FPS 15 · volatile canvas</span>
+                <span>Biometrics disabled</span>
               </div>
             </div>
           )}
         </>
       ) : cameraState.status === 'requesting' ? (
         <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
-          <RefreshCw className="w-7 h-7 text-white animate-spin" />
-          <div className="space-y-1">
-            <h4 className="font-semibold text-white text-sm">Requesting Camera Sensor</h4>
-            <p className="text-xs text-neutral-400 max-w-xs">
+          <RefreshCw className="w-5 h-5 text-slate-400 animate-spin" />
+          <div className="space-y-1.5">
+            <h4 className="font-medium text-white text-sm">Requesting camera sensor</h4>
+            <p className="text-[13px] text-slate-400 max-w-xs leading-relaxed">
               Please grant browser permission to initialize transient edge telemetry.
             </p>
           </div>
         </div>
       ) : cameraState.status === 'denied' ? (
         <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
-          <div className="w-10 h-10 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center">
-            <AlertCircle className="w-5 h-5 text-white" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="font-bold text-white text-sm">Sensor Unavailable</h4>
-            <p className="text-xs text-neutral-400 max-w-xs">
+          <AlertCircle className="w-5 h-5 text-amber-400" />
+          <div className="space-y-1.5">
+            <h4 className="font-medium text-white text-sm">Sensor unavailable</h4>
+            <p className="text-[13px] text-slate-400 max-w-xs leading-relaxed">
               {cameraState.errorMessage || 'Camera access was blocked by system settings or browser permissions.'}
             </p>
           </div>
           {onRequestCamera && (
             <Button variant="primary" size="sm" onClick={onRequestCamera}>
-              Retry Sensor Permission
+              Retry sensor permission
             </Button>
           )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
-          <div className="w-10 h-10 rounded-full bg-neutral-900 border border-neutral-700 flex items-center justify-center">
-            <CameraOff className="w-5 h-5 text-neutral-400" />
-          </div>
-          <div className="space-y-1">
-            <h4 className="font-bold text-white text-sm">Optical Ingestion Standby</h4>
-            <p className="text-xs text-neutral-400 max-w-xs">
+          <CameraOff className="w-5 h-5 text-slate-400" />
+          <div className="space-y-1.5">
+            <h4 className="font-medium text-white text-sm">Optical ingestion standby</h4>
+            <p className="text-[13px] text-slate-400 max-w-xs leading-relaxed">
               Camera will only activate during exam questions. Raw frames are never recorded or saved.
             </p>
           </div>
           {onRequestCamera && (
             <Button variant="primary" size="sm" onClick={onRequestCamera}>
-              Initialize Edge Camera
+              Initialize edge camera
             </Button>
           )}
         </div>

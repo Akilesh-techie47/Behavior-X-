@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Sparkles,
-  Bot,
-  ShieldCheck,
-  RefreshCw,
-  Info,
-  CheckCircle2,
-} from 'lucide-react';
+import { Sparkles, Bot, ShieldCheck, RefreshCw, Info, Check } from 'lucide-react';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { ExamSession } from '../../types';
@@ -53,13 +46,13 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
 
   return (
     <Card
-      title="AI Explanation & Examiner Assistant"
-      subtitle="Generative AI synthesis converting mathematical telemetry into objective, non-accusatory evidence summary"
+      title="AI explanation & examiner assistant"
+      subtitle="Generative synthesis of mathematical telemetry into an objective, non-accusatory evidence summary"
       badge={
-        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-[10px] font-mono font-semibold">
+        <span className="data inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-600 whitespace-nowrap">
           <Sparkles className="w-3 h-3" />
-          <span>{explanation?.source === 'gemini' ? 'GEMINI 3.8 FLASH' : 'DETERMINISTIC FALLBACK ENGINE'}</span>
-        </div>
+          {explanation?.source === 'gemini' ? 'Gemini 3.8 Flash' : 'Deterministic fallback'}
+        </span>
       }
       className={className}
       action={
@@ -70,53 +63,54 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
           disabled={loading}
           icon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />}
         >
-          {loading ? 'Synthesizing...' : 'Re-Evaluate AI'}
+          {loading ? 'Synthesizing' : 'Re-evaluate'}
         </Button>
       }
     >
-      <div className="space-y-4 text-xs leading-relaxed">
-        {/* Core Narrative Summary */}
-        <div className="p-4 rounded-md bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 space-y-2">
-          <div className="flex items-center gap-2 text-black dark:text-white font-bold text-xs uppercase tracking-wider font-mono">
-            <Bot className="w-4 h-4" />
-            <span>Structured Telemetry Synthesis</span>
+      <div className="space-y-4">
+        {/* Narrative summary */}
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3.5 space-y-2.5">
+          <div className="flex items-center gap-2">
+            <span className="inline-grid place-items-center w-6 h-6 rounded bg-slate-900 text-white shrink-0">
+              <Bot className="w-3.5 h-3.5" />
+            </span>
+            <span className="eyebrow text-slate-700">Structured telemetry synthesis</span>
           </div>
-          <p className="text-neutral-800 dark:text-neutral-200 leading-relaxed font-normal text-sm">
-            {explanation?.sessionSummary || 'Synthesizing objective examination summary...'}
+          <p className="text-[14px] text-slate-800 leading-relaxed">
+            {explanation?.sessionSummary || 'Synthesizing objective examination summary…'}
           </p>
-          <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-400">
-            <strong className="text-black dark:text-white font-mono">Observable Contributors:</strong> {explanation?.contributingSignalsExplanation}
+          <div className="pt-2.5 border-t border-slate-200 text-[12.5px] text-slate-600">
+            <strong className="font-semibold text-slate-900">Observable contributors: </strong>
+            {explanation?.contributingSignalsExplanation}
           </div>
         </div>
 
-        {/* Observable Patterns & Review Advice Grid */}
+        {/* Patterns & review points */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          {/* Left: Strongest Patterns */}
-          <div className="p-3.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 space-y-2">
-            <h5 className="font-bold text-black dark:text-white text-xs flex items-center gap-1.5 uppercase tracking-wider font-mono">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Correlated Behavioral Patterns</span>
-            </h5>
-            <ul className="space-y-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+          <div className="panel-inset bg-white space-y-2.5">
+            <span className="eyebrow inline-flex items-center gap-1.5">
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              Correlated behavioral patterns
+            </span>
+            <ul className="space-y-1.5">
               {explanation?.strongestObservablePatterns?.map((pat, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-black dark:text-white font-bold">•</span>
+                <li key={idx} className="flex items-start gap-2 text-[12.5px] text-slate-700 leading-relaxed">
+                  <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
                   <span>{pat}</span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Right: Suggested Review Points */}
-          <div className="p-3.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 space-y-2">
-            <h5 className="font-bold text-black dark:text-white text-xs flex items-center gap-1.5 uppercase tracking-wider font-mono">
-              <Info className="w-3.5 h-3.5" />
-              <span>Examiner Investigation Recommendations</span>
-            </h5>
-            <ul className="space-y-1.5 text-xs text-neutral-700 dark:text-neutral-300">
+          <div className="panel-inset bg-white space-y-2.5">
+            <span className="eyebrow inline-flex items-center gap-1.5">
+              <Info className="w-3.5 h-3.5 text-sky-600" />
+              Recommended investigation points
+            </span>
+            <ul className="space-y-1.5">
               {explanation?.suggestedReviewPoints?.map((pt, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <span className="text-black dark:text-white font-bold">•</span>
+                <li key={idx} className="flex items-start gap-2 text-[12.5px] text-slate-700 leading-relaxed">
+                  <span className="mt-[7px] w-1 h-1 rounded-full bg-slate-400 shrink-0" />
                   <span>{pt}</span>
                 </li>
               ))}
@@ -124,14 +118,14 @@ export const AIExplanationCard: React.FC<AIExplanationCardProps> = ({ session, c
           </div>
         </div>
 
-        {/* Ethical Uncertainty Disclaimer Banner */}
-        <div className="p-3 rounded-md bg-neutral-100 dark:bg-neutral-900 text-xs text-neutral-600 dark:text-neutral-400 flex items-start gap-2.5 border border-neutral-200 dark:border-neutral-800">
-          <ShieldCheck className="w-4 h-4 text-black dark:text-white flex-shrink-0 mt-0.5" />
-          <div>
-            <strong className="text-black dark:text-white font-mono uppercase text-[10px] block">
-              Ethical Mandate: Non-Accusatory Telemetry
-            </strong>
-            {explanation?.uncertaintyDisclaimer}
+        {/* Ethical mandate */}
+        <div className="flex items-start gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-4 py-3">
+          <ShieldCheck className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <span className="eyebrow">Ethical mandate: non-accusatory telemetry</span>
+            <p className="text-[12.5px] text-slate-600 leading-relaxed">
+              {explanation?.uncertaintyDisclaimer}
+            </p>
           </div>
         </div>
       </div>

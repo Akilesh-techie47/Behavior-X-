@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Eye, EyeOff, Lock, ServerOff, Database, Cpu, CheckCircle2, Sliders, AlertCircle } from 'lucide-react';
+import { ShieldCheck, EyeOff, Lock, ServerOff, ArrowRight, Layers } from 'lucide-react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { BrowserIntegrityService } from '../engine/security/BrowserIntegrityService';
@@ -7,87 +7,130 @@ import { BrowserIntegrityService } from '../engine/security/BrowserIntegrityServ
 export const PrivacyExplanationPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const browserCapabilities = BrowserIntegrityService.getCapabilities();
 
+  const guarantees = [
+    {
+      icon: <ServerOff className="w-4 h-4" />,
+      title: 'Zero video storage',
+      subtitle: 'Ephemeral RAM buffer (0ms)',
+      body: 'Conventional proctoring tools upload and store hours of candidate home footage. Behavior-X processes optical frames strictly inside volatile browser memory, purging each frame immediately upon computing geometric orientation vectors.',
+    },
+    {
+      icon: <EyeOff className="w-4 h-4" />,
+      title: 'No biometric identity',
+      subtitle: 'Non-invasive sensory telemetry',
+      body: 'We do not store biometric facial templates, query identity registries, or infer sensitive demographic characteristics such as race, ethnicity, medical conditions, or emotional states.',
+    },
+    {
+      icon: <Lock className="w-4 h-4" />,
+      title: 'Explainable evidence',
+      subtitle: 'Human examiner primacy',
+      body: 'The platform emits an inspectable review priority index, never an accusation of guilt. Only authorized human examiners evaluate evidence graphs with full counterfactual traceability.',
+    },
+  ];
+
+  const profiles = [
+    {
+      label: 'Profile 01',
+      name: 'Standard',
+      body: 'Browser visibility, window focus events, response timing, and question navigation. Optical sensor inactive.',
+      active: false,
+    },
+    {
+      label: 'Profile 02 · Default',
+      name: 'Behavioral',
+      body: 'Standard + on-device optical orientation, face presence, keystroke dynamics, and mouse velocity tracking.',
+      active: true,
+    },
+    {
+      label: 'Profile 03',
+      name: 'Enhanced',
+      body: 'Behavioral + AI-era interaction pattern detection, clipboard analysis, and temporal sequence cross-correlation.',
+      active: false,
+    },
+  ];
+
+  const statusTone = (status: string) => {
+    if (status === 'SUPPORTED') return 'bg-emerald-50 text-emerald-800 border-emerald-200';
+    if (status === 'PARTIAL' || status === 'SIMULATION ONLY')
+      return 'bg-amber-50 text-amber-900 border-amber-200';
+    return 'bg-slate-50 text-slate-600 border-slate-200 border-dashed';
+  };
+
   return (
-    <div className="max-w-4xl mx-auto py-8 space-y-8 font-sans">
-      {/* Page Title */}
-      <div className="border-b border-neutral-300 dark:border-neutral-700 pb-5">
-        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-850 text-[10px] font-mono uppercase text-neutral-900 dark:text-neutral-100 mb-2">
+    <div className="max-w-4xl mx-auto py-8 sm:py-10 space-y-8">
+      {/* 1. Page header */}
+      <div className="space-y-3 pb-6 border-b border-slate-200">
+        <p className="eyebrow inline-flex items-center gap-1.5">
           <ShieldCheck className="w-3.5 h-3.5" />
-          <span>BEHAVIORAL INTEGRITY ARCHITECTURE • 0MS VIDEO PERSISTENCE</span>
-        </div>
-        <h1 className="text-3xl font-bold tracking-tight text-neutral-950 dark:text-neutral-50 font-mono uppercase">
-          Ethical, Transparent & Explainable Architecture
+          Behavioral integrity architecture · 0ms video persistence
+        </p>
+        <h1 className="text-[26px] sm:text-[32px] font-semibold tracking-[-0.025em] text-slate-900 max-w-2xl">
+          Ethical, transparent, and explainable architecture
         </h1>
-        <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1 max-w-2xl leading-relaxed">
-          How Behavior-X transforms raw behavioral telemetry into structured causal evidence without invasive surveillance, biometric harvesting, or automated punishment.
+        <p className="text-[14px] text-slate-600 max-w-2xl leading-relaxed">
+          How Behavior-X transforms raw behavioral telemetry into structured causal evidence without
+          invasive surveillance, biometric harvesting, or automated punishment.
         </p>
       </div>
 
-      {/* Core Architectural Guarantees Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <Card
-          title="Zero Video Storage"
-          subtitle="Ephemeral RAM buffer (0ms)"
-          badge={<ServerOff className="w-4 h-4 text-neutral-950 dark:text-neutral-50" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono">
-            Conventional proctoring tools upload and store hours of candidate home footage. Behavior-X processes optical frames strictly inside volatile browser memory, purging each frame immediately upon computing geometric orientation vectors.
-          </p>
-        </Card>
-
-        <Card
-          title="No Biometric Identity"
-          subtitle="Non-invasive sensory telemetry"
-          badge={<EyeOff className="w-4 h-4 text-neutral-950 dark:text-neutral-50" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono">
-            We do not store biometric facial templates, query identity registries, or infer sensitive demographic characteristics such as race, ethnicity, medical conditions, or emotional states.
-          </p>
-        </Card>
-
-        <Card
-          title="Explainable Evidence"
-          subtitle="Human examiner primacy"
-          badge={<Lock className="w-4 h-4 text-neutral-950 dark:text-neutral-50" />}
-        >
-          <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed font-mono">
-            The platform emits an inspectable review priority index, never an accusation of guilt. Only authorized human examiners evaluate evidence graphs with full counterfactual traceability.
-          </p>
-        </Card>
+      {/* 2. Core guarantees */}
+      <div className="panel overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-slate-200">
+          <span className="eyebrow text-slate-700">Core architectural guarantees</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-slate-200">
+          {guarantees.map(g => (
+            <div key={g.title} className="px-5 sm:px-6 py-5">
+              <span className="inline-grid place-items-center w-8 h-8 rounded-md bg-slate-100 text-slate-600 mb-3.5">
+                {g.icon}
+              </span>
+              <h2 className="text-[15px] font-semibold text-slate-900 tracking-[-0.01em]">
+                {g.title}
+              </h2>
+              <p className="text-[12.5px] text-slate-500 mt-1">{g.subtitle}</p>
+              <p className="text-[13px] text-slate-600 leading-relaxed mt-3">{g.body}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Honest Browser Capability Matrix */}
+      {/* 3. Browser capability matrix */}
       <Card
-        title="Deterministic Browser Capability Matrix"
-        subtitle="Transparent boundary between verifiable web APIs and OS-level limitations"
+        title="Deterministic browser capability matrix"
+        subtitle="Verifiable web APIs versus OS-level limitations"
+        badge={
+          <span className="hidden sm:inline text-[12px] text-slate-500 whitespace-nowrap">
+            Live probe
+          </span>
+        }
       >
         <div className="overflow-x-auto">
-          <table className="w-full text-xs font-mono border-collapse">
+          <table className="data-table w-full text-left">
             <thead>
-              <tr className="border-b border-neutral-300 dark:border-neutral-700 text-left text-neutral-500 uppercase text-[10px]">
-                <th className="py-2.5 pr-4">Capability</th>
-                <th className="py-2.5 px-4">Browser Status</th>
-                <th className="py-2.5 pl-4">Implementation Notes</th>
+              <tr>
+                <th className="pb-2.5 pr-4">Capability</th>
+                <th className="pb-2.5 px-4">Browser status</th>
+                <th className="pb-2.5 pl-4">Implementation notes</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-200 dark:divide-neutral-800">
+            <tbody>
               {browserCapabilities.map((cap, idx) => (
-                <tr key={idx} className="hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
-                  <td className="py-2.5 pr-4 font-bold text-neutral-950 dark:text-neutral-50">{cap.name}</td>
+                <tr key={idx}>
+                  <td className="py-2.5 pr-4 text-[13px] font-medium text-slate-900 whitespace-nowrap">
+                    {cap.name}
+                  </td>
                   <td className="py-2.5 px-4">
                     <span
-                      className={`inline-block px-2 py-0.5 border text-[10px] uppercase font-bold ${
-                        cap.status === 'SUPPORTED'
-                          ? 'border-neutral-950 bg-neutral-950 text-white dark:border-white dark:bg-white dark:text-black'
-                          : cap.status === 'PARTIAL' || cap.status === 'SIMULATION ONLY'
-                          ? 'border-neutral-500 bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
-                          : 'border-dashed border-neutral-400 text-neutral-500 bg-transparent'
-                      }`}
+                      className={`inline-block px-2 py-0.5 rounded-[4px] border text-[10.5px] font-semibold uppercase tracking-[0.04em] whitespace-nowrap ${statusTone(
+                        cap.status
+                      )}`}
                     >
                       {cap.status}
                     </span>
                   </td>
-                  <td className="py-2.5 pl-4 text-neutral-600 dark:text-neutral-400">{cap.notes}</td>
+                  <td className="py-2.5 pl-4 text-[12.5px] text-slate-600 leading-relaxed">
+                    {cap.notes}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -95,59 +138,60 @@ export const PrivacyExplanationPage: React.FC<{ onNavigate: (path: string) => vo
         </div>
       </Card>
 
-      {/* Configurable Monitoring Profiles */}
+      {/* 4. Monitoring profiles */}
       <Card
-        title="Institution Monitoring Profiles"
+        title="Institution monitoring profiles"
         subtitle="Granular telemetry controls configured by academic administrators"
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
-          <div className="p-4 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-2">
-            <span className="text-[10px] font-bold text-neutral-500 uppercase">Profile 01</span>
-            <div className="text-sm font-bold text-neutral-950 dark:text-neutral-50 uppercase">STANDARD</div>
-            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-[11px]">
-              Browser visibility, window focus events, response timing, and question navigation. Optical sensor inactive.
-            </p>
-          </div>
-
-          <div className="p-4 border border-neutral-950 dark:border-neutral-50 bg-neutral-100 dark:bg-neutral-900 space-y-2">
-            <span className="text-[10px] font-bold text-neutral-500 uppercase">Profile 02 (Default)</span>
-            <div className="text-sm font-bold text-neutral-950 dark:text-neutral-50 uppercase">BEHAVIORAL</div>
-            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-[11px]">
-              Standard + On-device optical orientation, face presence, keystroke dynamics, and mouse velocity tracking.
-            </p>
-          </div>
-
-          <div className="p-4 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 space-y-2">
-            <span className="text-[10px] font-bold text-neutral-500 uppercase">Profile 03</span>
-            <div className="text-sm font-bold text-neutral-950 dark:text-neutral-50 uppercase">ENHANCED</div>
-            <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed text-[11px]">
-              Behavioral + AI-era interaction pattern detection, clipboard analysis, and temporal sequence cross-correlation.
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {profiles.map(p => (
+            <div
+              key={p.name}
+              className={`rounded-md border px-4 py-4 ${
+                p.active
+                  ? 'border-brand-600 bg-brand-50/50 ring-1 ring-brand-600/15'
+                  : 'border-slate-200 bg-white'
+              }`}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="eyebrow">{p.label}</span>
+                {p.active && (
+                  <span className="text-[10.5px] font-semibold uppercase tracking-[0.04em] text-brand-700">
+                    Active
+                  </span>
+                )}
+              </div>
+              <div className="text-[15px] font-semibold text-slate-900 mt-1.5">{p.name}</div>
+              <p className="text-[12.5px] text-slate-600 leading-relaxed mt-2">{p.body}</p>
+            </div>
+          ))}
         </div>
       </Card>
 
-      {/* Call to Action */}
-      <div className="flex flex-wrap items-center justify-between p-5 border border-neutral-950 dark:border-neutral-50 bg-neutral-950 text-white gap-4">
-        <div>
-          <h4 className="text-sm font-bold font-mono uppercase text-white">Experience Behavioral Examination Intelligence</h4>
-          <p className="text-xs text-neutral-400 font-mono">Observe how telemetry transforms into explainable evidence.</p>
+      {/* 5. Call to action */}
+      <div className="panel flex flex-wrap items-center justify-between gap-4 p-5 bg-slate-900 border-slate-900 text-white">
+        <div className="min-w-0">
+          <h2 className="text-[15px] font-semibold">Experience behavioral examination intelligence</h2>
+          <p className="text-[13px] text-slate-400 mt-1">
+            Observe how raw telemetry transforms into inspectable evidence.
+          </p>
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="academic"
             size="md"
             onClick={() => onNavigate('/demo')}
+            icon={<Layers className="w-4 h-4" />}
           >
-            Launch Demo Lab
+            Launch demo lab
           </Button>
           <Button
-            variant="outline"
+            variant="onDark"
             size="md"
             onClick={() => onNavigate('/examiner')}
-            className="text-white border-neutral-700 hover:bg-neutral-900"
+            icon={<ArrowRight className="w-4 h-4" />}
           >
-            Examiner Console
+            Examiner console
           </Button>
         </div>
       </div>

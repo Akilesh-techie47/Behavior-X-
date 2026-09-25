@@ -5,22 +5,13 @@ import {
   RotateCcw,
   StepForward,
   Sparkles,
-  Shield,
-  Layers,
-  Clock,
-  Eye,
-  AlertTriangle,
-  Monitor,
   ChevronRight,
-  GitBranch,
-  Sliders,
-  CheckCircle,
+  Layers,
 } from 'lucide-react';
 import { useSession } from '../context/SessionContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { RiskBadge, StatusBadge } from '../components/common/StatusBadge';
-import { RiskIndicator } from '../components/common/RiskIndicator';
 import { DEMO_SCENARIOS, DemoScenario, DemoStep } from '../engine/demo/demoScenarios';
 import { RiskTimeline } from '../components/examiner/RiskTimeline';
 import { AIExplanationCard } from '../components/examiner/AIExplanationCard';
@@ -130,313 +121,298 @@ export const DemoPage: React.FC<{ onNavigate: (path: string) => void }> = ({ onN
   const evidenceQuality = session.riskState.evidenceQualityScore ?? 92;
   const observationQuality = session.riskState.observationQualityScore ?? 95;
 
+  const pipelineSteps = [
+    'Multimodal sensors',
+    'Ephemeral buffer (0ms)',
+    'Baseline calibration',
+    'Temporal fusion',
+    'Causal evidence graph',
+    'Human examiner decision',
+  ];
+
+  const coreMetrics = [
+    {
+      index: 'Telemetry metric 01',
+      name: 'Integrity review priority',
+      value: reviewPriority,
+      note: `Events in 30s window: ${session.riskState.eventCountInWindow}`,
+      badge: (
+        <RiskBadge level={session.riskState.reviewPriorityLevel || session.riskState.level} />
+      ),
+    },
+    {
+      index: 'Telemetry metric 02',
+      name: 'Evidence quality',
+      value: evidenceQuality,
+      note: 'Multi-signal triangulation verified',
+      badge: <StatusBadge status="High confidence" variant="nominal" size="sm" />,
+    },
+    {
+      index: 'Telemetry metric 03',
+      name: 'Observation quality',
+      value: observationQuality,
+      note: 'Browser APIs nominal · 0ms video storage',
+      badge: <StatusBadge status="Optimal" variant="nominal" size="sm" />,
+    },
+  ];
+
+  const playbackProgress = Math.min(
+    100,
+    (elapsedSeconds / selectedScenario.totalDurationSeconds) * 100
+  );
+
   return (
-    <div className="space-y-6 py-6 font-sans">
-      {/* 1. Monochromatic Master Banner */}
-      <div className="p-6 border border-neutral-300 dark:border-neutral-700 bg-neutral-950 text-white flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 border border-white bg-white text-black font-mono text-[10px] font-bold tracking-widest uppercase">
-              DEMO SIMULATION
+    <div className="space-y-6 py-6">
+      {/* 1. Master banner */}
+      <div className="rounded-lg bg-slate-900 border border-slate-900 text-white px-5 sm:px-6 py-5 flex flex-wrap items-center justify-between gap-5">
+        <div className="min-w-0 space-y-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="rounded-[3px] bg-white px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-900">
+              Demo simulation
             </span>
-            <span className="text-neutral-400 text-xs font-mono">
-              Deterministic offline engine (Webcam & external API optional)
+            <span className="text-[12.5px] text-slate-400">
+              Deterministic offline engine · webcam and external API optional
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white font-mono uppercase">
-            Deterministic Multimodal Evaluation Lab
+          <h1 className="text-[21px] sm:text-[24px] font-semibold tracking-[-0.02em]">
+            Deterministic multimodal evaluation lab
           </h1>
-          <p className="text-xs text-neutral-300 max-w-2xl leading-relaxed">
-            Examine how Behavior-X correlates observable cues (gaze vectors, browser focus, keystroke interval deviation, and answer speed) to construct causal evidence graphs in real time. Zero video saved.
+          <p className="text-[13px] text-slate-300 max-w-2xl leading-relaxed">
+            Examine how Behavior-X correlates observable cues (gaze vectors, browser focus,
+            keystroke interval deviation, and answer speed) to construct causal evidence graphs in
+            real time. Zero video saved.
           </p>
         </div>
 
-        {/* Quick Launch Actions */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="academic"
             size="md"
             onClick={handleLaunchJudgeDemo}
-            icon={<Sparkles className="w-4 h-4 text-white" />}
+            icon={<Sparkles className="w-4 h-4" />}
           >
-            Launch Judge Demo (Complex AI-Era)
+            Launch judge demo
           </Button>
           <Button
-            variant="outline"
-            size="sm"
+            variant="onDark"
+            size="md"
             onClick={() => onNavigate('/examiner')}
-            className="text-white border-neutral-700 hover:bg-neutral-900"
+            icon={<Layers className="w-4 h-4" />}
           >
-            Examiner Console
+            Examiner console
           </Button>
         </div>
       </div>
 
-      {/* 2. Architectural Pipeline Banner */}
-      <div className="p-4 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
-        <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-2">
-          Behavior-X Telemetry Pipeline
-        </div>
-        <div className="flex items-center justify-between gap-1 overflow-x-auto text-[11px] py-1 font-mono">
-          <div className="px-3 py-1.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-            1. Multimodal Sensors
-          </div>
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0" />
-          <div className="px-3 py-1.5 border border-neutral-300 dark:border-neutral-700 bg-neutral-200 dark:bg-neutral-850 text-neutral-950 dark:text-neutral-50 font-bold whitespace-nowrap">
-            2. Ephemeral In-Memory Buffer (0ms)
-          </div>
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0" />
-          <div className="px-3 py-1.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-            3. Personal Baseline Calibration
-          </div>
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0" />
-          <div className="px-3 py-1.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-            4. Temporal Correlation & Fusion
-          </div>
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0" />
-          <div className="px-3 py-1.5 border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 whitespace-nowrap">
-            5. Causal Evidence Graph
-          </div>
-          <ChevronRight className="w-3.5 h-3.5 text-neutral-400 flex-shrink-0" />
-          <div className="px-3 py-1.5 border border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 font-bold whitespace-nowrap">
-            6. Human Examiner Decision
-          </div>
+      {/* 2. Pipeline rail */}
+      <div className="panel px-5 py-3.5">
+        <span className="eyebrow">Behavior-X telemetry pipeline</span>
+        <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto text-[12px] pb-0.5">
+          {pipelineSteps.map((step, idx) => {
+            const isTerminal = idx === pipelineSteps.length - 1;
+            return (
+              <React.Fragment key={step}>
+                <span
+                  className={`px-2.5 py-1 rounded-[4px] border whitespace-nowrap ${
+                    isTerminal
+                      ? 'border-slate-900 bg-slate-900 text-white font-medium'
+                      : 'border-slate-200 bg-slate-50 text-slate-600'
+                  }`}
+                >
+                  <span className="data text-slate-400 mr-1.5">{idx + 1}</span>
+                  {step}
+                </span>
+                {idx < pipelineSteps.length - 1 && (
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" />
+                )}
+              </React.Fragment>
+            );
+          })}
         </div>
       </div>
 
-      {/* 3. Scenario Selector Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
-        {DEMO_SCENARIOS.map(sc => {
-          const isSelected = selectedScenario.id === sc.id;
-          return (
-            <button
-              key={sc.id}
-              onClick={() => handleSelectScenario(sc)}
-              className={`p-4 border text-left transition-all relative flex flex-col justify-between ${
-                isSelected
-                  ? 'border-neutral-950 bg-neutral-950 text-white dark:border-neutral-100 dark:bg-neutral-100 dark:text-neutral-950 shadow-sm'
-                  : 'border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-500'
-              }`}
-            >
-              <div>
-                <div className="flex items-center justify-between text-[10px] font-mono mb-2">
-                  <span className={isSelected ? 'text-neutral-400 dark:text-neutral-600' : 'text-neutral-500'}>
-                    Result:
-                  </span>
-                  <RiskBadge level={sc.expectedFinalRisk} />
+      {/* 3. Scenario selector */}
+      <div className="space-y-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="eyebrow">Select a scenario</span>
+          <span className="text-[12px] text-slate-500">
+            {DEMO_SCENARIOS.length} deterministic traces
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+          {DEMO_SCENARIOS.map(sc => {
+            const isSelected = selectedScenario.id === sc.id;
+            return (
+              <button
+                key={sc.id}
+                onClick={() => handleSelectScenario(sc)}
+                aria-pressed={isSelected}
+                className={`text-left rounded-md border p-3.5 flex flex-col justify-between gap-2.5 transition-colors ${
+                  isSelected
+                    ? 'border-brand-600 bg-brand-50/60 ring-1 ring-brand-600/20'
+                    : 'border-slate-200 bg-white hover:border-slate-400 hover:bg-slate-50'
+                }`}
+              >
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="data text-[11px] text-slate-400">
+                      {String(sc.steps.length).padStart(2, '0')} steps
+                    </span>
+                    <RiskBadge level={sc.expectedFinalRisk} />
+                  </div>
+                  <h2 className="text-[13px] font-semibold text-slate-900 leading-snug">
+                    {sc.name.split(':')[0]}
+                  </h2>
+                  <p className="text-[12px] text-slate-500 leading-snug line-clamp-2">
+                    {sc.name.split(':')[1] || sc.name}
+                  </p>
                 </div>
-                <h4 className="font-bold text-xs font-mono uppercase leading-snug">
-                  {sc.name.split(':')[0]}
-                </h4>
-                <div className="text-[11px] font-medium mt-0.5 line-clamp-1">
-                  {sc.name.split(':')[1] || sc.name}
+                <div className="data text-[11px] text-slate-400">
+                  {sc.totalDurationSeconds}s total
                 </div>
-                <p className={`text-[11px] mt-2 line-clamp-2 leading-relaxed ${isSelected ? 'text-neutral-300 dark:text-neutral-700' : 'text-neutral-600 dark:text-neutral-400'}`}>
-                  {sc.description}
-                </p>
-              </div>
-              <div className={`mt-3 text-[10px] font-mono ${isSelected ? 'text-neutral-300 dark:text-neutral-700' : 'text-neutral-500'}`}>
-                {sc.steps.length} Steps • {sc.totalDurationSeconds}s total
-              </div>
-            </button>
-          );
-        })}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* 4. Playback Controller & Step Annotation */}
+      {/* 4. Playback controller */}
       <Card
-        title={`Active Simulation: ${selectedScenario.name}`}
+        title={`Active simulation: ${selectedScenario.name}`}
         subtitle={selectedScenario.summary}
         badge={
-          <div className="flex items-center gap-2 text-xs font-mono">
-            <span className="text-neutral-500">Progress:</span>
-            <span className="font-bold text-neutral-950 dark:text-neutral-50">
-              {elapsedSeconds}s / {selectedScenario.totalDurationSeconds}s
-            </span>
-          </div>
+          <span className="data text-[12.5px] font-semibold text-slate-900 whitespace-nowrap">
+            {elapsedSeconds}s / {selectedScenario.totalDurationSeconds}s
+          </span>
         }
       >
         <div className="space-y-4">
-          {/* Controls Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-3">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant={isPlaying ? 'outline' : 'primary'}
                 size="sm"
                 onClick={handlePlayPause}
-                icon={isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                icon={isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
               >
-                {isPlaying ? 'Pause Simulation' : 'Play Scenario'}
+                {isPlaying ? 'Pause' : 'Play scenario'}
               </Button>
-
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleNextStep}
                 disabled={executedStepIndices.length >= selectedScenario.steps.length}
-                icon={<StepForward className="w-4 h-4" />}
+                icon={<StepForward className="w-3.5 h-3.5" />}
               >
-                Next Step
+                Next step
               </Button>
-
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
-                icon={<RotateCcw className="w-4 h-4" />}
+                icon={<RotateCcw className="w-3.5 h-3.5" />}
               >
                 Reset
               </Button>
             </div>
 
-            <div className="flex items-center gap-2 font-mono text-xs">
-              <span className="text-neutral-500">Execution Speed:</span>
-              <button
-                onClick={() => setPlaybackSpeed(1)}
-                className={`px-3 py-1 border text-xs transition-colors ${
-                  playbackSpeed === 1
-                    ? 'border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 font-bold'
-                    : 'border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
-                }`}
-              >
-                1.0x Realtime
-              </button>
-              <button
-                onClick={() => setPlaybackSpeed(2)}
-                className={`px-3 py-1 border text-xs transition-colors ${
-                  playbackSpeed === 2
-                    ? 'border-neutral-950 bg-neutral-950 text-white dark:border-neutral-50 dark:bg-neutral-50 dark:text-neutral-950 font-bold'
-                    : 'border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'
-                }`}
-              >
-                2.0x Accelerated
-              </button>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[12px] text-slate-500 mr-1">Execution speed</span>
+              {[
+                { value: 1, label: '1.0× realtime' },
+                { value: 2, label: '2.0× accelerated' },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setPlaybackSpeed(opt.value)}
+                  aria-pressed={playbackSpeed === opt.value}
+                  className={`h-7 px-2.5 rounded-md text-[12px] font-medium transition-colors ${
+                    playbackSpeed === opt.value
+                      ? 'bg-slate-900 text-white'
+                      : 'text-slate-600 hover:bg-slate-100'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Active Annotation Callout */}
           {activeAnnotation ? (
-            <div className="p-4 border border-neutral-950 dark:border-neutral-200 bg-neutral-50 dark:bg-neutral-900 text-xs flex items-start gap-3">
-              <Sparkles className="w-4 h-4 text-neutral-900 dark:text-neutral-100 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2.5 rounded-md border border-brand-200 bg-brand-50/50 px-4 py-3">
+              <Sparkles className="w-4 h-4 text-brand-700 flex-shrink-0 mt-0.5" />
               <div>
-                <strong className="font-mono font-bold block uppercase tracking-wider text-[10px] text-neutral-900 dark:text-neutral-100">
-                  ENGINEERING BEHAVIOR OBSERVATION:
-                </strong>
-                <span className="text-neutral-800 dark:text-neutral-200 leading-relaxed font-mono">
+                <span className="eyebrow text-brand-800">Engineering behavior observation</span>
+                <p className="text-[13px] text-slate-700 leading-relaxed mt-1.5">
                   {activeAnnotation}
-                </span>
+                </p>
               </div>
             </div>
           ) : (
-            <div className="p-3 border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-500 font-mono text-xs">
-              Click <strong>Play Scenario</strong> or <strong>Next Step</strong> to dispatch synthetic telemetry events and inspect real-time causal graph construction.
-            </div>
+            <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-[12.5px] text-slate-500">
+              Select <strong className="font-medium text-slate-700">Play scenario</strong> or{' '}
+              <strong className="font-medium text-slate-700">Next step</strong> to dispatch
+              synthetic telemetry events and inspect real-time causal graph construction.
+            </p>
           )}
 
-          {/* Timeline Bar */}
-          <div className="space-y-1.5 pt-1">
-            <div className="flex justify-between text-[10px] font-mono text-neutral-500">
-              <span>SIMULATION TIMELINE</span>
-              <span>
-                {executedStepIndices.length} OF {selectedScenario.steps.length} EVENTS EMITTED
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-[11.5px] text-slate-500">
+              <span>Simulation timeline</span>
+              <span className="data">
+                {executedStepIndices.length} of {selectedScenario.steps.length} events emitted
               </span>
             </div>
-            <div className="relative h-2 bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-slate-200 overflow-hidden">
               <div
-                className="h-full bg-neutral-950 dark:bg-neutral-100 transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    100,
-                    (elapsedSeconds / selectedScenario.totalDurationSeconds) * 100
-                  )}%`,
-                }}
+                className="h-full rounded-full bg-brand-700 transition-[width] duration-300 ease-out"
+                style={{ width: `${playbackProgress}%` }}
               />
             </div>
           </div>
         </div>
       </Card>
 
-      {/* 5. The Three Core Scores Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Core Metric 1: Review Priority */}
-        <div className="p-5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-neutral-500">Telemetry Metric 01</span>
-            <RiskBadge level={session.riskState.reviewPriorityLevel || session.riskState.level} />
-          </div>
-          <div className="text-xs uppercase font-mono font-medium text-neutral-600 dark:text-neutral-400">
-            Integrity Review Priority
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-4xl font-mono font-bold text-neutral-950 dark:text-neutral-50">{reviewPriority}</span>
-            <span className="text-xs font-mono text-neutral-400">/ 100</span>
-          </div>
-          <div className="mt-3">
-            <ProgressBar value={reviewPriority} max={100} />
-          </div>
-          <div className="mt-2 text-[10px] font-mono text-neutral-500">
-            Events in 30s Window: {session.riskState.eventCountInWindow}
-          </div>
-        </div>
-
-        {/* Core Metric 2: Evidence Quality */}
-        <div className="p-5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-neutral-500">Telemetry Metric 02</span>
-            <StatusBadge status="HIGH CONFIDENCE" variant="nominal" size="sm" />
-          </div>
-          <div className="text-xs uppercase font-mono font-medium text-neutral-600 dark:text-neutral-400">
-            Evidence Quality Score
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-4xl font-mono font-bold text-neutral-950 dark:text-neutral-50">{evidenceQuality}</span>
-            <span className="text-xs font-mono text-neutral-400">/ 100</span>
-          </div>
-          <div className="mt-3">
-            <ProgressBar value={evidenceQuality} max={100} />
-          </div>
-          <div className="mt-2 text-[10px] font-mono text-neutral-500">
-            Multi-signal triangulation verified
-          </div>
-        </div>
-
-        {/* Core Metric 3: Observation Quality */}
-        <div className="p-5 border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase text-neutral-500">Telemetry Metric 03</span>
-            <StatusBadge status="OPTIMAL" variant="nominal" size="sm" />
-          </div>
-          <div className="text-xs uppercase font-mono font-medium text-neutral-600 dark:text-neutral-400">
-            Observation Quality
-          </div>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-4xl font-mono font-bold text-neutral-950 dark:text-neutral-50">{observationQuality}</span>
-            <span className="text-xs font-mono text-neutral-400">/ 100</span>
-          </div>
-          <div className="mt-3">
-            <ProgressBar value={observationQuality} max={100} />
-          </div>
-          <div className="mt-2 text-[10px] font-mono text-neutral-500">
-            Browser APIs nominal • 0ms video storage
-          </div>
+      {/* 5. Core metrics */}
+      <div className="panel overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:divide-x md:divide-slate-200">
+          {coreMetrics.map(metric => (
+            <div key={metric.index} className="px-5 py-5">
+              <div className="flex items-center justify-between gap-3">
+                <span className="eyebrow">{metric.index}</span>
+                {metric.badge}
+              </div>
+              <h2 className="text-[13.5px] font-medium text-slate-700 mt-2.5">{metric.name}</h2>
+              <div className="flex items-baseline gap-1.5 mt-1">
+                <span className="data text-[30px] font-semibold leading-none text-slate-900">
+                  {metric.value}
+                </span>
+                <span className="data text-[12px] text-slate-400">/ 100</span>
+              </div>
+              <div className="mt-3">
+                <ProgressBar value={metric.value} max={100} />
+              </div>
+              <p className="text-[12px] text-slate-500 leading-relaxed mt-2.5">{metric.note}</p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 6. Live Evidence Graph Construction */}
+      {/* 6. Live evidence graph */}
       <EvidenceGraphViewer graphData={evidenceGraph} />
 
-      {/* 7. AI Explanation Layer */}
+      {/* 7. AI explanation layer */}
       <AIExplanationCard session={session} />
 
-      {/* 8. Chronological Score Timeline */}
+      {/* 8. Chronological score timeline */}
       <Card
-        title="Temporal Score Evolution"
-        subtitle="Live tracking of review priority score as synthetic events arrive"
+        title="Temporal score evolution"
+        subtitle="Live review priority as synthetic events arrive"
       >
         <RiskTimeline timeline={session.riskState.timeline || []} />
       </Card>
 
-      {/* 9. Privacy Proof & Browser Capabilities */}
+      {/* 9. Privacy proof & browser capabilities */}
       <PrivacyPanel />
     </div>
   );
