@@ -1,44 +1,88 @@
-# BEHAVIOR-X V2 — HONEST CAPABILITY BOUNDARIES & KNOWN LIMITATIONS
+# Known limitations
 
-In strict compliance with **Rule 5 (Browser Limitations)** and **Rule 8 (Never Claim Certainty of Misconduct)**, this document outlines what web-based examination integrity systems can and cannot technically observe.
-
----
-
-## 1. Browser Capability Matrix
-
-| Capability | Status | Implementation Truth |
-|:---|:---|:---|
-| **Tab Visibility (Page Visibility API)** | `SUPPORTED` | Deterministically detects when the exam tab is active vs hidden. |
-| **Window Blur & Focus** | `SUPPORTED` | Detects when candidate clicks outside the exam browser window. |
-| **Fullscreen Mode Lock** | `SUPPORTED` | Uses standard Fullscreen API; detects fullscreen exit immediately. |
-| **In-Page Clipboard Events** | `PARTIAL` | Intercepts copy, cut, and paste within the exam DOM. **Cannot** inspect external OS clipboard history due to browser sandbox security. |
-| **Keystroke & Mouse Dynamics** | `SUPPORTED` | Measures in-page key intervals, dwell times, cursor velocity, and acceleration. |
-| **Optical Facial Orientation & Gaze** | `SUPPORTED` | Estimates head orientation (pitch, yaw, roll) and gaze vectors on device. Subject to lighting and occlusion. |
-| **Multiple-Person Detection** | `SUPPORTED` | Identifies multiple facial contours in active camera frame. |
-| **External Monitor Detection** | `LIMITED / PARTIAL` | Browsers can detect total screen resolution (`window.screen.availWidth`), but physical cable topology requires experimental permissions not universally supported across all browsers. |
-| **Native OS Screen Recording Apps** | `NOT AVAILABLE IN BROWSER` | Web sandboxes strictly prohibit inspecting OS process trees. Any platform claiming to detect all OBS/background capture apps in pure client JS is falsifying capabilities. |
-| **Native Non-Browser Desktop Apps** | `NOT AVAILABLE IN BROWSER` | Browser security architecture isolates web execution from desktop processes (e.g. running Discord or WhatsApp on a secondary monitor). |
+Stated plainly, because a product about transparency that hides its own gaps is
+not worth much. Ordered by how much they would matter in a real deployment.
 
 ---
 
-## 2. Sensory & Environmental Limitations
+## The build itself
 
-### 2.1 Ambient Lighting & Hardware Sensor Quality
-- In low-illumination environments (<15 lux), facial landmark bounding certainty drops.
-- **Behavior-X Mitigation:** The platform reports this as a drop in **Observation Quality** (e.g. 45/100) and **Evidence Quality**, rather than falsely flagging the student for cheating.
+- **Every service is a mock.** `src/services/mock/` implements the contracts in
+  `src/services/contracts.ts`. The latency and failure profiles are real; the
+  data is not.
+- **Nothing persists.** A decision recorded in the review workspace lives in the
+  mock service for the life of the page. There is no database, no write-ahead
+  log, and no way to recover a refresh.
+- **There is no authentication.** `/signin` selects a role from a list and
+  `CURRENT_EXAMINER` is a fixture. There are no sessions, no tokens, and no
+  authorisation checks beyond what the interface implies.
+- **Routing is hash-based.** `#/examinations/S-1025` rather than
+  `/examinations/S-1025`. It survives a static host and a file path, which is how
+  this build is reviewed, and it is the wrong choice behind a real server where
+  clean paths matter for logs and for server-side routing.
 
-### 2.2 Legitimate Dual-Display Workspaces
-- Students with legitimate dual-monitor configurations (e.g. laptop connected to larger ergonomic display) may naturally turn their heads.
-- **Behavior-X Mitigation:** Cooldown thresholds suppress brief glances, and examiners can inspect question difficulty before reviewing.
+## The evidence
 
-### 2.3 Scratchpad & Rough Calculations
-- Candidates solving complex mathematics or data structure problems will naturally look down at rough paper.
-- **Behavior-X Mitigation:** downward glances under 3.5 seconds do not accumulate critical risk. The Question Heatmap correlates difficulty with expected solving pauses.
+- **The detectors are templates, not models.** `services/fixtures/sessions.ts`
+  lays signals down per storyline with seeded jitter. The confidence values are
+  authored, not computed, and nothing in this build demonstrates that a detector
+  can or cannot read behaviour from a camera — that is an empirical question
+  this codebase takes no position on.
+- **The corpus is small and tidy.** Three examinations, twenty sessions, a
+  handful of findings, and a confirmed count that is deliberately small. Real
+  data is messier: duplicated candidates, abandoned sessions, device changes
+  mid-exam, clock drift, and detectors that disagree with each other.
+- **The correlation stage is asserted, not implemented.** Bundles in the fixtures
+  are authored. The interface shows what a correlation stage would produce and
+  what an examiner would do with it; it does not implement the stage.
+- **There is no re-derivation.** If a policy clause changes, nothing re-filters
+  existing sessions. A real system must keep the clause version that was in force
+  when each session was sat, and this build has no such field.
 
----
+## The interface
 
-## 3. Algorithmic Decision Boundaries
+- **No error boundaries in the route tree.** A thrown render empties the screen
+  rather than showing a recoverable message. `npm run test:routes` catches this
+  for the routes it knows about, which is all of them, but only at first render
+  and only with the fixtures loaded.
+- **The command palette in the examiner shell is a shell.** It opens and lists
+  destinations; the search is not fuzzy and the commands are navigation only.
+- **Live sessions poll every thirty seconds.** No websocket, no server push, and
+  no incremental updates. The elapsed times and “last signal” ages are computed
+  from a settled snapshot.
+- **Bundle splitting is per screen, not per data set.** The analytics and report
+  models travel with their screens rather than being fetched on demand.
+- **The device check cannot really check a device.** It reports what the
+  environment and the mock services tell it. There is no frame-rate measurement,
+  no OS-level process inspection, and no detection of a second machine — because
+  building those is a different and much larger product decision, and pretending
+  to do it here would be the exact failure this project is about.
 
-- **Zero Automated Disqualification:** The platform produces an **Integrity Review Priority** index (0-100), not an accusation or failing grade.
-- **Zero Demographic Inference (Rule 9):** Appearance, ethnicity, gender, medical traits, and emotional state are never inferred or stored.
-- **Human Authority:** All decisions must be confirmed, dismissed, or annotated by human academic examiners.
+## The claims
+
+- **“No score anywhere” is enforced by types, not by review.** The domain model
+  has no risk field, which makes adding one a deliberate act rather than an
+  oversight. It does not stop someone adding a derived figure in a component.
+- **The privacy charter describes intent, not a verified control.** Nothing here
+  has been through an assessment, and no statement in this repository should be
+  read as a compliance claim.
+- **The interface states limits, but the limits are claims.** “This device does
+  not record audio” is enforced only by a mock service that never records
+  anything. In a real deployment each of those sentences needs a technical
+  control behind it and an audit that proves the control held.
+
+## What would have to be true
+
+For any of this to run as an examination system rather than a demonstration:
+
+1. Real services behind the existing contracts, with the transport’s error
+   vocabulary preserved so the interface states the right thing.
+2. A data store that records what was observed, when, by which process, and
+   under which policy version — append-only, with the retention clock enforced
+   server-side.
+3. Institutional identity, role-based authorisation, and a second-reader rule
+   for anything consequential.
+4. Independently evaluated detectors, with published false-positive rates, and a
+   policy that decides what may be shown to an examiner at all.
+5. A candidate-facing privacy notice that has been through legal review, and
+   candidate consent that is a real decision rather than a checkbox.

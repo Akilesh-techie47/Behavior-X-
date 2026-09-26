@@ -1,118 +1,175 @@
 @import "tailwindcss";
 
 /*
- * Behavior-X design tokens.
+ * BEHAVIOR-X design system
+ * ---------------------------------------------------------------------------
+ * The product is monochrome. There is no hue anywhere in the interface: status
+ * is carried by fill weight, border weight, position, iconography and words.
+ * This is a deliberate constraint, not an omission. An examiner reading a
+ * session under time pressure should be able to trust that nothing on screen
+ * is emotionally coloured.
  *
- * The interface is a single, deliberately light surface: neutral slate canvas,
- * white working surfaces, one institutional navy accent, and a small semantic
- * set reserved strictly for status. Dark mode is opt-in only, so the product
- * never silently inverts on a machine with a dark OS preference.
+ * Surfaces step, they do not float:
+ *   page      neutral-100   #F5F5F5
+ *   panel     white         #FFFFFF
+ *   inset     neutral-50    #FAFAFA
+ *   rail      #0A0A0A / neutral-950, examiner navigation only
+ *
+ * The grayscale ramp used throughout (Tailwind `neutral`):
+ *   50 #FAFAFA  100 #F5F5F5  200 #E5E5E5  300 #D4D4D4  400 #A3A3A3
+ *  500 #737373  600 #525252  700 #404040  800 #262626  900 #171717
+ * 950 #0A0A0A
+ *
+ * Corner radii stay small (2–6px). Nothing is a pill. Shadows are reserved
+ * for things that genuinely float: overlays, menus and dialogs.
  */
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-    Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
-    "Liberation Mono", monospace;
+  --font-sans:
+    "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
 
-  /* Restrained corners — nothing is pill-shaped by default. */
   --radius-xs: 2px;
   --radius-sm: 3px;
-  --radius-md: 5px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
-
-  /* Brand: institutional ink navy. */
-  --color-brand-50: #eef2f7;
-  --color-brand-100: #dde5ef;
-  --color-brand-200: #c2d1e2;
-  --color-brand-300: #9ab2ce;
-  --color-brand-400: #6b8db4;
-  --color-brand-500: #4c6e99;
-  --color-brand-600: #3b587e;
-  --color-brand-700: #32496a;
-  --color-brand-800: #2c3e59;
-  --color-brand-900: #283549;
-  --color-brand-950: #1a2233;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 10px;
 }
 
 @layer base {
   :root {
     color-scheme: light;
+    /* Measured, always available, never animated. Used for progress meters. */
+    --meter-track: var(--color-neutral-200);
   }
 
   html {
     -webkit-text-size-adjust: 100%;
+    scrollbar-gutter: stable;
   }
 
   body {
     font-family: var(--font-sans);
-    font-size: 15px;
-    line-height: 1.55;
-    @apply antialiased text-slate-900 bg-slate-50;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-size: 14px;
+    line-height: 1.5;
+    letter-spacing: -0.006em;
+    @apply antialiased text-neutral-900 bg-neutral-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "ss01";
   }
 
-  /* One consistent focus treatment across every interactive element. */
+  /* One focus treatment for the whole product. */
   :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-    outline: 2px solid var(--color-brand-600);
-    outline-offset: 2px;
+    outline: 2px solid var(--color-neutral-900);
+    outline-offset: 1px;
+  }
+
+  /* Dark surfaces invert the ring so focus is always visible. */
+  :where(.surface-invert) :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline-color: var(--color-white);
   }
 
   ::selection {
-    background-color: var(--color-brand-100);
-    color: var(--color-brand-950);
+    background-color: var(--color-neutral-900);
+    color: var(--color-white);
   }
 
   h1,
   h2,
   h3,
   h4,
-  h5 {
-    @apply text-slate-900;
+  h5,
+  h6 {
+    @apply text-neutral-900 font-semibold;
     text-wrap: balance;
+    letter-spacing: -0.014em;
   }
 
-  /* Native controls inherit the product accent instead of the OS default. */
+  p {
+    text-wrap: pretty;
+  }
+
   input[type="checkbox"],
   input[type="radio"] {
-    accent-color: var(--color-brand-700);
+    accent-color: var(--color-neutral-900);
   }
 
   select {
-    @apply bg-white text-slate-800;
+    @apply bg-white text-neutral-800;
+  }
+
+  /* Native number inputs are never used for examination entry. */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
   }
 
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 11px;
+    height: 11px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 border-[3px] border-solid border-transparent bg-clip-content rounded-full;
+    @apply bg-neutral-300 border-[3px] border-solid border-transparent bg-clip-content;
+    border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 bg-clip-content;
+    @apply bg-neutral-400 bg-clip-content;
+  }
+
+  table {
+    font-variant-numeric: tabular-nums;
   }
 }
 
 @layer components {
-  /* Working surface used for every panel of content. */
+  /* ---------------------------------------------------------------------
+   * Surfaces
+   * ------------------------------------------------------------------- */
+
+  /* Default working surface for a block of content. */
   .panel {
-    @apply bg-white border border-slate-200 rounded-lg shadow-xs;
+    @apply bg-white border border-neutral-200 rounded-md;
   }
 
-  /* Nested surface: sits inside a panel, so no elevation of its own. */
+  /* Nested surface inside a panel. No elevation — it is inside something. */
   .panel-inset {
-    @apply bg-slate-50 border border-slate-200 rounded-md;
+    @apply bg-neutral-50 border border-neutral-200 rounded-sm;
   }
 
-  /* Uppercase micro-label used above values and section content. */
+  /* A section that is deliberately *not* boxed. Used to break up long pages
+     so the eye can rest; hierarchy comes from rules and spacing. */
+  .rule-top {
+    @apply border-t border-neutral-200;
+  }
+
+  .hairline {
+    @apply border-neutral-200;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Type
+   * ------------------------------------------------------------------- */
+
+  /* Uppercase micro-label. Used above values, in table heads, in status bars. */
   .eyebrow {
-    @apply text-[11px] font-medium uppercase tracking-[0.09em] text-slate-500;
+    @apply text-[10.5px] font-semibold uppercase tracking-[0.1em] text-neutral-500;
+  }
+
+  /* Secondary metadata. Deliberately never below 11px. */
+  .meta {
+    @apply text-[12px] text-neutral-500;
+  }
+
+  .meta-strong {
+    @apply text-[12px] text-neutral-700;
   }
 
   /* Tabular figures for anything numeric or time-based. */
@@ -120,30 +177,133 @@
     @apply font-mono tabular-nums;
   }
 
-  /* Keyboard shortcut cap. */
-  .kbd {
-    @apply inline-flex items-center justify-center min-w-[1.35rem] h-[1.35rem] px-1
-      rounded-[3px] border border-slate-300 bg-white text-[10px] font-medium
-      text-slate-600 shadow-xs;
+  /* Verbatim: identifiers, keys, URLs, code. */
+  .verbatim {
+    @apply font-mono text-[12px] tracking-[-0.01em];
   }
 
-  /* Data table primitives — dense, quiet, and scannable. */
+  /* ---------------------------------------------------------------------
+   * Controls
+   * ------------------------------------------------------------------- */
+
+  .kbd {
+    @apply inline-flex items-center justify-center min-w-[1.3rem] h-[1.3rem] px-1
+      rounded-[3px] border border-neutral-300 bg-neutral-50 text-[10px] font-medium
+      font-sans text-neutral-600;
+  }
+
+  .quiet-link {
+    @apply text-[12.5px] font-medium text-neutral-500 hover:text-neutral-900
+      transition-colors duration-100;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Tables
+   * ------------------------------------------------------------------- */
+
   .data-table {
     @apply w-full text-left border-collapse;
   }
   .data-table thead th {
-    @apply text-[11px] font-medium uppercase tracking-[0.07em] text-slate-500
-      pb-2.5 border-b border-slate-200 whitespace-nowrap;
+    @apply text-[10.5px] font-semibold uppercase tracking-[0.08em] text-neutral-500
+      py-2 pr-4 border-b border-neutral-200 whitespace-nowrap bg-neutral-50;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   .data-table tbody td {
-    @apply py-3 pr-4 align-middle border-b border-slate-100;
+    @apply py-2.5 pr-4 align-middle border-b border-neutral-100 text-[13px];
   }
   .data-table tbody tr:last-child td {
     @apply border-b-0;
   }
+  .data-table tbody tr {
+    @apply transition-colors duration-100;
+  }
+  .data-table tbody tr:hover {
+    @apply bg-neutral-50;
+  }
+  .data-table tbody tr[data-selected="true"] {
+    @apply bg-neutral-100;
+  }
+  .data-table tbody tr[data-clickable="true"] {
+    cursor: pointer;
+  }
 
-  /* Quiet inline text button used in headers and footers. */
-  .quiet-link {
-    @apply text-[13px] font-medium text-slate-500 hover:text-brand-700 transition-colors;
+  /* ---------------------------------------------------------------------
+   * Meters
+   * Fill weight is the only variable. No colour, no gradient, no animation.
+   * ------------------------------------------------------------------- */
+
+  .meter {
+    @apply relative w-full h-1.5 bg-neutral-200 overflow-hidden rounded-[2px];
+  }
+  .meter > span {
+    @apply absolute inset-y-0 left-0 rounded-[2px];
+    transition: width 200ms linear;
+  }
+
+  /* Vertical variant used in dense tables. */
+  .meter-v {
+    @apply relative w-1 h-9 bg-neutral-200 overflow-hidden;
+  }
+
+  /* ---------------------------------------------------------------------
+   * Effects
+   * ------------------------------------------------------------------- */
+
+  /* Reserved for things that genuinely sit above the page. */
+  .overlay {
+    @apply fixed inset-0 z-50 bg-neutral-950/35;
+  }
+
+  .float {
+    @apply shadow-[0_1px_2px_rgba(10,10,10,0.06),0_8px_24px_-8px_rgba(10,10,10,0.18)];
+  }
+
+  /* A 1px grid, used behind observation panes to read as an instrument
+     surface rather than a video player. */
+  .instrument-grid {
+    background-image:
+      linear-gradient(to right, rgba(163, 163, 163, 0.14) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(163, 163, 163, 0.14) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Dot lattice used on empty observation panes. */
+  .dot-lattice {
+    background-image: radial-gradient(rgba(163, 163, 163, 0.28) 1px, transparent 1px);
+    background-size: 12px 12px;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  /* Respect the operating system preference. Nothing in BEHAVIOR-X is worth
+     motion sickness. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    body {
+      background: #fff;
+    }
   }
 }
